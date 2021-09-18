@@ -613,7 +613,7 @@ void RFM69_interrupt_handler_timer(RFM69_t *module) {
 
 void RFM69_loop(RFM69_t *module) {
 	// in case interrupt is not handled properly
-	RFM69_interrupt_handler_io(module);
+//	RFM69_interrupt_handler_io(module);
 
 	if (module->status==RFM69_STATUS_TX || module->status==RFM69_STATUS_SEND_ACK) {
 		if (module->timer>1000) {
