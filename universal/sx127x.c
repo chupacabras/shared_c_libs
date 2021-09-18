@@ -121,7 +121,7 @@ void SX127X_config(SX127X_t *module) {
 	SX127X_SPIWrite(module, SX127X_LoRa_RegSymbTimeoutLsb, 0x08); //RegSymbTimeoutLsb Timeout = 0x3FF(Max)
 	SX127X_SPIWrite(module, SX127X_LoRa_RegPreambleMsb, 0x00); //RegPreambleMsb
 	SX127X_SPIWrite(module, SX127X_LoRa_RegPreambleLsb, 8); //RegPreambleLsb 8+4=12byte Preamble
-	SX127X_SPIWrite(module, SX127X_RegDioMapping2, 0x01); //RegDioMapping2 DIO5=00 (ModeReady), DIO4=01 (PllLock)
+	SX127X_SPIWrite(module, SX127X_RegDioMapping2, 0x01); //RegDioMapping2 0b01: DIO5 (ClkOut), DIO4 (PllLock), DIO0 (TxDone)
 	module->readBytes = 0;
 	SX127X_standby(module); //Entry standby mode
 }

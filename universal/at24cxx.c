@@ -22,6 +22,7 @@ void AT24C02_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 1;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -42,6 +43,7 @@ void AT24C04_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 1;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -61,6 +63,7 @@ void AT24C08_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 1;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -79,6 +82,7 @@ void AT24C16_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 1;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -100,6 +104,7 @@ void AT24C32_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 2;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -121,6 +126,7 @@ void AT24C64_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read_
 	obj->m_address_length = 2;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -142,6 +148,7 @@ void AT24C512_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_read
 	obj->m_address_length = 2;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**
@@ -163,6 +170,7 @@ void AT24C1024_init(AT24CXX_Object *obj, at24cxx_write_ptr write_reg, device_rea
 	obj->m_address_length = 2;
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
+    obj->delay_ms=delay_ms;
 }
 
 /**

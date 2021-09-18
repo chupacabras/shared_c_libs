@@ -12,14 +12,18 @@
  * @brief  Initialize button debouncer.
  * @param  btn:       pointer to a DebounceButton structure that contains
  *                    the information for the specified button.
- * @param  debouncer_is_button_down: The function that returns hardware state of button
+ * @param  is_button_down: The function that returns hardware state of button
+ * @param  button_pressed_cb: The callback function that is called when button is pressed. Can be NULL
+ * @param  button_released_cb: The callback function that is called when button is released. Can be NULL
  * @param  mode: detection mode
  */
-void deboucer_init(DebounceButton *btn, debouncer_is_button_down is_button_down_fn, DebouncerButtonMode mode) {
-	btn->is_button_down = is_button_down_fn;
+void deboucer_init(DebounceButton *btn, debouncer_is_button_down is_button_down, debouncer_button_callback button_pressed_cb, debouncer_button_callback button_released_cb, DebouncerButtonMode mode) {
+	btn->is_button_down = is_button_down;
 	btn->button_counter = 0;
 	btn->button_status = false;
 	btn->button_pressed_count = 0;
+	btn->button_pressed_cb=button_pressed_cb;
+	btn->button_released_cb=button_released_cb;
 	btn->mode=mode;
 }
 
@@ -30,6 +34,9 @@ void deboucer_init(DebounceButton *btn, debouncer_is_button_down is_button_down_
  */
 void deboucer_process(DebounceButton *btn) {
 	if (btn->is_button_down && btn->is_button_down()) {
+		if (btn->button_counter==0 && btn->button_pressed_cb) {
+			btn->button_pressed_cb(btn);
+		}
 		btn->button_counter++;
 		if (btn->button_counter == 60000) {
 			btn->button_counter = 50000;
@@ -69,6 +76,9 @@ void deboucer_process(DebounceButton *btn) {
 	} else {
 		btn->button_status = false;
 		btn->button_counter = 0;
+		if (btn->button_released_cb) {
+			btn->button_released_cb(btn);
+		}
 	}
 }
 

@@ -1,0 +1,445 @@
+/**
+  ******************************************************************************
+  * @file    onewire.c
+  * @author  Juraj Lonc (juraj.lonc@gmail.com)
+  * @brief   One-Wire driver.
+  ******************************************************************************
+  * Based on:
+ * |----------------------------------------------------------------------
+ * | Copyright (c) 2016 Tilen Majerle
+ * |
+ * | Permission is hereby granted, free of charge, to any person
+ * | obtaining a copy of this software and associated documentation
+ * | files (the "Software"), to deal in the Software without restriction,
+ * | including without limitation the rights to use, copy, modify, merge,
+ * | publish, distribute, sublicense, and/or sell copies of the Software,
+ * | and to permit persons to whom the Software is furnished to do so,
+ * | subject to the following conditions:
+ * |
+ * | The above copyright notice and this permission notice shall be
+ * | included in all copies or substantial portions of the Software.
+ * |
+ * | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * | EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * | OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * | AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * | HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * | WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * | FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * | OTHER DEALINGS IN THE SOFTWARE.
+ * |----------------------------------------------------------------------
+ */
+
+#include <onewire.h>
+
+void onewire_init(OneWireObject *ow, onewire_pin_output pin_output, onewire_pin_input pin_input, onewire_pin_low pin_low, onewire_pin_high pin_high, onewire_pin_read pin_read, onewire_delay_us delay_us, onewire_interrupts_on interrupts_on, onewire_interrupts_off interrupts_off) {
+	ow->pin_output=pin_output;
+	ow->pin_input=pin_input;
+	ow->pin_low=pin_low;
+	ow->pin_high=pin_high;
+	ow->pin_read=pin_read;
+	ow->delay_us=delay_us;
+	ow->interrupts_on=interrupts_on;
+	ow->interrupts_off=interrupts_off;
+
+	onewire_reset_search(ow);
+}
+
+void onewire_depower(OneWireObject *ow) {
+	ow->pin_input();
+}
+
+void onewire_write_bit(OneWireObject *ow, uint8_t bit) {
+	if (bit) {
+		ow->interrupts_off();
+
+		/* Set line low */
+		ow->pin_low();
+		ow->pin_output();
+		ow->delay_us(10);
+
+		/* Bit high - release line, pull-up resistor */
+		ow->pin_high();
+		ow->pin_input();
+
+		ow->interrupts_on();
+
+		/* Wait for 55 us and release the line */
+		ow->delay_us(55);
+
+	} else {
+		ow->interrupts_off();
+
+		/* Set line low */
+		ow->pin_low();
+		ow->pin_output();
+		ow->delay_us(65);
+
+		/* Bit high - release line, pull-up resistor */
+		ow->pin_high();
+		ow->pin_input();
+
+		ow->interrupts_on();
+
+		/* Wait for 5 us and release the line */
+		ow->delay_us(5);
+
+	}
+}
+
+void onewire_write_byte(OneWireObject *ow, uint8_t byte) {
+	uint8_t i = 8;
+	/* Write 8 bits */
+	while (i--) {
+		/* LSB bit is first */
+		onewire_write_bit(ow, byte & 0x01);
+		byte >>= 1;
+	}
+}
+
+uint8_t onewire_read_bit(OneWireObject *ow) {
+	uint8_t bit=0;
+
+	ow->interrupts_off();
+
+	/* Line low */
+	ow->pin_low();
+	ow->pin_output();
+	ow->delay_us(3);
+
+	/* Release line */
+	ow->pin_input();
+	ow->delay_us(10);
+
+	/* Read line value */
+	if (ow->pin_read()) {
+		bit=1;
+	}
+
+	ow->interrupts_on();
+
+	/* Wait 50us to complete 60us period */
+	ow->delay_us(50);
+
+	/* Return bit value */
+	return bit;
+}
+
+uint8_t onewire_read_byte(OneWireObject *ow) {
+	uint8_t i = 8, byte = 0;
+	while (i--) {
+		byte >>= 1;
+		byte |= (onewire_read_bit(ow) << 7);
+	}
+
+	return byte;
+}
+
+uint8_t onewire_reset(OneWireObject *ow) {
+	uint8_t i=125;
+
+	// wait until the wire is high... just in case
+	ow->pin_input();
+	do {
+		if (--i == 0)
+			return 1;
+		ow->delay_us(2);
+	} while (!ow->pin_read());
+
+	ow->interrupts_off();
+
+	/* Line low, and wait 480us */
+	ow->pin_low();
+	ow->pin_output();
+	ow->delay_us(480);
+
+	/* Release line and wait for 70us */
+	ow->pin_input();
+	ow->delay_us(70);
+
+
+	/* Check bit value */
+	i=ow->pin_read();
+
+	ow->interrupts_on();
+
+	/* Delay for 410 us */
+	ow->delay_us(410);
+
+	/* Return value of presence pulse, 0 = OK, 1 = ERROR */
+	return i;
+}
+
+
+
+
+void onewire_rom_match(OneWireObject *ow, uint8_t rom[8]) {
+    uint8_t i;
+
+    onewire_write_byte(ow, ONEWIRE_CMD_MATCHROM);           // Choose ROM
+
+    for( i = 0; i < 8; i++) onewire_write_byte(ow, rom[i]);
+}
+
+void onewire_rom_skip(OneWireObject *ow) {
+	onewire_write_byte(ow, ONEWIRE_CMD_SKIPROM);           // Skip ROM
+}
+
+#ifdef ONEWIRE_SEARCH
+
+uint8_t onewire_find_first(OneWireObject *ow, uint8_t *new_addr) {
+	/* Reset search values */
+	onewire_reset_search(ow);
+
+	/* Start with searching */
+	return onewire_rom_search(ow, new_addr);
+}
+
+uint8_t onewire_find_next(OneWireObject *ow, uint8_t *new_addr) {
+   /* Leave the search state alone */
+   return onewire_rom_search(ow, new_addr);
+}
+
+
+void onewire_setup_search_family(OneWireObject *ow, uint8_t family_code) {
+	uint8_t i;
+
+	/* Set the search state to find SearchFamily type devices */
+	ow->ROM_NO[0] = family_code;
+	for (i = 1; i < 8; i++) {
+		ow->ROM_NO[i] = 0;
+	}
+
+	ow->LastDiscrepancy = 64;
+	ow->LastFamilyDiscrepancy = 0;
+	ow->LastDeviceFlag = 0;
+}
+
+void onewire_reset_search(OneWireObject *ow) {
+	uint8_t i;
+	/* Reset the search state */
+	ow->LastDiscrepancy = 0;
+	ow->LastDeviceFlag = 0;
+	ow->LastFamilyDiscrepancy = 0;
+
+	for (i = 7;; i--) {
+		ow->ROM_NO[i] = 0;
+		if (i == 0)
+			break;
+	}
+}
+
+uint8_t onewire_rom_search(OneWireObject *ow, uint8_t *new_addr) {
+	uint8_t id_bit_number;
+	uint8_t last_zero, rom_byte_number, search_result;
+	uint8_t id_bit, cmp_id_bit;
+	uint8_t rom_byte_mask, search_direction;
+	uint8_t i;
+
+	/* Initialize for search */
+	id_bit_number = 1;
+	last_zero = 0;
+	rom_byte_number = 0;
+	rom_byte_mask = 1;
+	search_result = 0;
+
+	/* Check if any devices */
+	if (!ow->LastDeviceFlag) {
+		/* 1-Wire reset */
+		if (onewire_reset(ow)) {
+			/* Reset the search */
+			ow->LastDiscrepancy = 0;
+			ow->LastDeviceFlag = 0;
+			ow->LastFamilyDiscrepancy = 0;
+			return 0;
+		}
+
+		/* Issue the search command */
+		onewire_write_byte(ow, ONEWIRE_CMD_SEARCHROM);
+
+		/* Loop to do the search */
+		do {
+			/* Read a bit and its complement */
+			id_bit = onewire_read_bit(ow);
+			cmp_id_bit = onewire_read_bit(ow);
+
+			/* Check for no devices on 1-wire */
+			if ((id_bit == 1) && (cmp_id_bit == 1)) {
+				break;
+			} else {
+				/* All devices coupled have 0 or 1 */
+				if (id_bit != cmp_id_bit) {
+					/* Bit write value for search */
+					search_direction = id_bit;
+				} else {
+					/* If this discrepancy is before the Last Discrepancy on a previous next then pick the same as last time */
+					if (id_bit_number < ow->LastDiscrepancy) {
+						search_direction = ((ow->ROM_NO[rom_byte_number] & rom_byte_mask) > 0);
+					} else {
+						/* If equal to last pick 1, if not then pick 0 */
+						search_direction = (id_bit_number == ow->LastDiscrepancy);
+					}
+
+					/* If 0 was picked then record its position in LastZero */
+					if (search_direction == 0) {
+						last_zero = id_bit_number;
+
+						/* Check for Last discrepancy in family */
+						if (last_zero < 9) {
+							ow->LastFamilyDiscrepancy = last_zero;
+						}
+					}
+				}
+
+				/* Set or clear the bit in the ROM byte rom_byte_number with mask rom_byte_mask */
+				if (search_direction == 1) {
+					ow->ROM_NO[rom_byte_number] |= rom_byte_mask;
+				} else {
+					ow->ROM_NO[rom_byte_number] &= ~rom_byte_mask;
+				}
+
+				/* Serial number search direction write bit */
+				onewire_write_bit(ow, search_direction);
+
+				/* Increment the byte counter id_bit_number and shift the mask rom_byte_mask */
+				id_bit_number++;
+				rom_byte_mask <<= 1;
+
+				/* If the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask */
+				if (rom_byte_mask == 0) {
+					rom_byte_number++;
+					rom_byte_mask = 1;
+				}
+			}
+			/* Loop until through all ROM bytes 0-7 */
+		} while (rom_byte_number < 8);
+
+		/* If the search was successful then */
+		if (!(id_bit_number < 65)) {
+			/* Search successful so set LastDiscrepancy, LastDeviceFlag, search_result */
+			ow->LastDiscrepancy = last_zero;
+
+			/* Check for last device */
+			if (ow->LastDiscrepancy == 0) {
+				ow->LastDeviceFlag = 1;
+			}
+
+			search_result = 1;
+		}
+	}
+
+	/* If no device found then reset counters so next 'search' will be like a first */
+	if (!search_result || !ow->ROM_NO[0]) {
+		ow->LastDiscrepancy = 0;
+		ow->LastDeviceFlag = 0;
+		ow->LastFamilyDiscrepancy = 0;
+		search_result = 0;
+	}
+
+	if (search_result) {
+		for (i = 0; i < 8; i++)
+			new_addr[i] = ow->ROM_NO[i];
+	}
+
+	return search_result;
+}
+#endif
+
+#ifdef ONEWIRE_CRC
+// The 1-Wire CRC scheme is described in Maxim Application Note 27:
+// "Understanding and Using Cyclic Redundancy Checks with Maxim iButton Products"
+//
+
+#ifdef ONEWIRE_CRC8_TABLE
+// This table comes from Dallas sample code where it is freely reusable,
+// though Copyright (C) 2000 Dallas Semiconductor Corporation
+static const uint8_t dscrc_table[] = {
+      0, 94,188,226, 97, 63,221,131,194,156,126, 32,163,253, 31, 65,
+    157,195, 33,127,252,162, 64, 30, 95,  1,227,189, 62, 96,130,220,
+     35,125,159,193, 66, 28,254,160,225,191, 93,  3,128,222, 60, 98,
+    190,224,  2, 92,223,129, 99, 61,124, 34,192,158, 29, 67,161,255,
+     70, 24,250,164, 39,121,155,197,132,218, 56,102,229,187, 89,  7,
+    219,133,103, 57,186,228,  6, 88, 25, 71,165,251,120, 38,196,154,
+    101, 59,217,135,  4, 90,184,230,167,249, 27, 69,198,152,122, 36,
+    248,166, 68, 26,153,199, 37,123, 58,100,134,216, 91,  5,231,185,
+    140,210, 48,110,237,179, 81, 15, 78, 16,242,172, 47,113,147,205,
+     17, 79,173,243,112, 46,204,146,211,141,111, 49,178,236, 14, 80,
+    175,241, 19, 77,206,144,114, 44,109, 51,209,143, 12, 82,176,238,
+     50,108,142,208, 83, 13,239,177,240,174, 76, 18,145,207, 45,115,
+    202,148,118, 40,171,245, 23, 73,  8, 86,180,234,105, 55,213,139,
+     87,  9,235,181, 54,104,138,212,149,203, 41,119,244,170, 72, 22,
+    233,183, 85, 11,136,214, 52,106, 43,117,151,201, 74, 20,246,168,
+    116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53};
+
+//
+// Compute a Dallas Semiconductor 8 bit CRC. These show up in the ROM
+// and the registers.  (note: this might better be done without to
+// table, it would probably be smaller and certainly fast enough
+// compared to all those delayMicrosecond() calls.  But I got
+// confused, so I use this table from the examples.)
+//
+uint8_t onewire_crc8( uint8_t *addr, uint8_t len)
+{
+	uint8_t crc = 0;
+
+	while (len--) {
+		crc = dscrc_table[(crc ^ *addr++)];
+	}
+	return crc;
+}
+#else
+//
+// Compute a Dallas Semiconductor 8 bit CRC directly.
+// this is much slower, but much smaller, than the lookup table.
+//
+uint8_t onewire_crc8(uint8_t *addr, uint8_t len) {
+	uint8_t crc = 0, inbyte, i, mix;
+
+	while (len--) {
+		inbyte = *addr++;
+		for (i = 8; i; i--) {
+			mix = (crc ^ inbyte) & 0x01;
+			crc >>= 1;
+			if (mix) {
+				crc ^= 0x8C;
+			}
+			inbyte >>= 1;
+		}
+	}
+
+	/* Return calculated CRC */
+	return crc;
+}
+
+#endif
+
+#ifdef ONEWIRE_CRC16
+uint8_t onewire_check_crc16(uint8_t* input, uint16_t len, uint8_t* inverted_crc) {
+    uint16_t crc = ~onewire_crc16(input, len);
+    return (crc & 0xFF) == inverted_crc[0] && (crc >> 8) == inverted_crc[1];
+}
+
+uint16_t onewire_crc16(uint8_t* input, uint16_t len) {
+    static const uint8_t oddparity[16] = { 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 };
+    uint16_t crc = 0;    // Starting seed is zero.
+    uint16_t i;
+    for (i = 0 ; i < len ; i++) {
+      // Even though we're just copying a byte from the input,
+      // we'll be doing 16-bit computation with it.
+      uint16_t cdata = input[i];
+      cdata = (cdata ^ (crc & 0xff)) & 0xff;
+      crc >>= 8;
+
+      if (oddparity[cdata & 0x0F] ^ oddparity[cdata >> 4])
+          crc ^= 0xC001;
+
+      cdata <<= 6;
+      crc ^= cdata;
+      cdata <<= 1;
+      crc ^= cdata;
+    }
+    return crc;
+}
+#endif
+
+#endif
