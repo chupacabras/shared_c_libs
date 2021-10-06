@@ -6,7 +6,7 @@
   ******************************************************************************
   */
 
-#include <utils.h>
+#include "utils.h"
 
 
 /**
@@ -133,8 +133,9 @@ void long2hex(uint8_t *buffer, uint32_t i) {
  * @brief  Convert signed number to string.
  * @param  buffer: Buffer where to build the string. Buffer must be at least 12 bytes long.
  * @param  i: signed number to convert
+ * @retval  output:   Length of string
  */
-void long2string(uint8_t *buffer, int32_t i) {
+uint8_t long2string(uint8_t *buffer, int32_t i) {
 	int32_t n;
 	bool negate = false;
 	uint8_t c = 12;
@@ -145,7 +146,7 @@ void long2string(uint8_t *buffer, int32_t i) {
 	} else if (i == 0) {
 		buffer[0] = '0';
 		buffer[1] = 0;
-		return;
+		return 1;
 	} else {
 		n = i;
 	}
@@ -160,6 +161,7 @@ void long2string(uint8_t *buffer, int32_t i) {
 	}
 
 	memcpy(buffer, &buffer[c+1], 12-c);
+	return 11-c;
 }
 
 /**
@@ -175,7 +177,7 @@ void double2string(uint8_t *buffer, double d, uint8_t decimals, uint8_t length) 
 	for (q = 0; q < decimals; q++) {
 		mul = mul * 10;
 	}
-	long n = d*mul;
+	long n = (long)(d*mul);
 	int c = length;
 	bool negate = false;
 

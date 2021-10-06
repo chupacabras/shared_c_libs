@@ -32,6 +32,8 @@
 
 #include "onewire.h"
 
+extern TIM_HandleTypeDef htim3;
+
 void onewire_init(OneWireObject *ow, onewire_pin_output pin_output, onewire_pin_input pin_input, onewire_pin_low pin_low, onewire_pin_high pin_high, onewire_pin_read pin_read, onewire_delay_us delay_us, onewire_interrupts_on interrupts_on, onewire_interrupts_off interrupts_off) {
 	ow->pin_output=pin_output;
 	ow->pin_input=pin_input;
@@ -46,43 +48,43 @@ void onewire_init(OneWireObject *ow, onewire_pin_output pin_output, onewire_pin_
 }
 
 void onewire_depower(OneWireObject *ow) {
-	ow->pin_input();
+	OW_PIN_INPUT();
 }
 
 void onewire_write_bit(OneWireObject *ow, uint8_t bit) {
 	if (bit) {
-		ow->interrupts_off();
+		OW_IRQ_OFF();
 
 		/* Set line low */
-		ow->pin_low();
-		ow->pin_output();
-		ow->delay_us(10);
+		OW_PIN_LOW();
+		OW_PIN_OUTPUT();
+		OW_DELAY_US(10);
 
 		/* Bit high - release line, pull-up resistor */
-		ow->pin_high();
-		ow->pin_input();
+		OW_PIN_HIGH();
+		OW_PIN_INPUT();
 
-		ow->interrupts_on();
+		OW_IRQ_ON();
 
 		/* Wait for 55 us and release the line */
-		ow->delay_us(55);
+		OW_DELAY_US(55);
 
 	} else {
-		ow->interrupts_off();
+		OW_IRQ_OFF();
 
 		/* Set line low */
-		ow->pin_low();
-		ow->pin_output();
-		ow->delay_us(65);
+		OW_PIN_LOW();
+		OW_PIN_OUTPUT();
+		OW_DELAY_US(65);
 
 		/* Bit high - release line, pull-up resistor */
-		ow->pin_high();
-		ow->pin_input();
+		OW_PIN_HIGH();
+		OW_PIN_INPUT();
 
-		ow->interrupts_on();
+		OW_IRQ_ON();
 
 		/* Wait for 5 us and release the line */
-		ow->delay_us(5);
+		OW_DELAY_US(5);
 
 	}
 }
@@ -100,26 +102,26 @@ void onewire_write_byte(OneWireObject *ow, uint8_t byte) {
 uint8_t onewire_read_bit(OneWireObject *ow) {
 	uint8_t bit=0;
 
-	ow->interrupts_off();
+	OW_IRQ_OFF();
 
 	/* Line low */
-	ow->pin_low();
-	ow->pin_output();
-	ow->delay_us(3);
+	OW_PIN_LOW();
+	OW_PIN_OUTPUT();
+	OW_DELAY_US(3);
 
 	/* Release line */
-	ow->pin_input();
-	ow->delay_us(10);
+	OW_PIN_INPUT();
+	OW_DELAY_US(10);
 
 	/* Read line value */
-	if (ow->pin_read()) {
+	if (OW_PIN_READ()) {
 		bit=1;
 	}
 
-	ow->interrupts_on();
+	OW_IRQ_ON();
 
 	/* Wait 50us to complete 60us period */
-	ow->delay_us(50);
+	OW_DELAY_US(50);
 
 	/* Return bit value */
 	return bit;
@@ -139,53 +141,38 @@ uint8_t onewire_reset(OneWireObject *ow) {
 	uint8_t i=125;
 
 	// wait until the wire is high... just in case
-	ow->pin_input();
+	OW_PIN_INPUT();
 	do {
 		if (--i == 0)
 			return 1;
-		ow->delay_us(2);
-	} while (!ow->pin_read());
+		OW_DELAY_US(2);
+	} while (!OW_PIN_READ());
 
-	ow->interrupts_off();
+	OW_IRQ_OFF();
 
 	/* Line low, and wait 480us */
-	ow->pin_low();
-	ow->pin_output();
-	ow->delay_us(480);
+	OW_PIN_LOW();
+	OW_PIN_OUTPUT();
+	OW_DELAY_US(480);
 
 	/* Release line and wait for 70us */
-	ow->pin_input();
-	ow->delay_us(70);
+	OW_PIN_INPUT();
+	OW_DELAY_US(70);
 
 
 	/* Check bit value */
-	i=ow->pin_read();
+	i=OW_PIN_READ();
 
-	ow->interrupts_on();
+	OW_IRQ_ON();
 
 	/* Delay for 410 us */
-	ow->delay_us(410);
+	OW_DELAY_US(410);
 
 	/* Return value of presence pulse, 0 = OK, 1 = ERROR */
 	return i;
 }
 
-bool onewire_read_rom(OneWireObject *ow, uint8_t rom[8]) {
-	if (onewire_reset(ow)) {
-		return false;
-	}
-	onewire_write_byte(ow, ONEWIRE_CMD_READROM);
-	uint8_t q;
-	rom[0]=onewire_read_byte(ow);
-	if (rom[0]!=0x01) {
-		return false;
-	}
-	for (q=1; q<8; q++) {
-		rom[q]=onewire_read_byte(ow);
-	}
 
-	return true;
-}
 
 
 void onewire_rom_match(OneWireObject *ow, uint8_t rom[8]) {

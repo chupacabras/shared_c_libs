@@ -10,7 +10,30 @@
 #define INC_ONEWIRE_H_
 
 #include "stdio.h"
-#include "stdbool.h"
+
+#include "stm32f1xx_hal.h"
+
+#define IBUTTON_KEY_CENTER_Pin GPIO_PIN_9
+#define IBUTTON_KEY_CENTER_GPIO_Port GPIOB
+
+//#define OW_IRQ_OFF()		ow->interrupts_off()
+//#define OW_IRQ_ON()			ow->interrupts_on()
+//#define OW_DELAY_US(us)		ow->delay_us(us)
+//#define OW_PIN_OUTPUT()		ow->pin_output()
+//#define OW_PIN_INPUT()		ow->pin_input()
+//#define OW_PIN_LOW()		ow->pin_low()
+//#define OW_PIN_HIGH()		ow->pin_high()
+//#define OW_PIN_READ()		ow->pin_read()
+
+#define OW_DELAY_US(us)		htim3.Instance->CNT=0;while(htim3.Instance->CNT < us)
+#define OW_IRQ_OFF()		__asm("cpsid i")
+#define OW_IRQ_ON()			__asm("cpsie i")
+#define OW_PIN_LOW()		(IBUTTON_KEY_CENTER_GPIO_Port)->BSRR = (uint32_t)(((uint32_t)IBUTTON_KEY_CENTER_Pin) << 16)
+#define OW_PIN_HIGH()		(IBUTTON_KEY_CENTER_GPIO_Port)->BSRR = (uint32_t)(IBUTTON_KEY_CENTER_Pin)
+#define OW_PIN_OUTPUT()		(IBUTTON_KEY_CENTER_GPIO_Port)->CRH = ((IBUTTON_KEY_CENTER_GPIO_Port)->CRH & 0xff0f) | 0x0030
+#define OW_PIN_INPUT()		(IBUTTON_KEY_CENTER_GPIO_Port)->CRH = ((IBUTTON_KEY_CENTER_GPIO_Port)->CRH & 0xff0f) | 0x0040
+#define OW_PIN_READ()		((IBUTTON_KEY_CENTER_GPIO_Port)->IDR & IBUTTON_KEY_CENTER_Pin)
+
 
 // you can exclude onewire_search by defining that to 0
 #ifndef ONEWIRE_SEARCH
@@ -43,7 +66,7 @@ typedef void(*onewire_pin_input) (void);
 typedef void(*onewire_pin_high) (void);
 typedef void(*onewire_pin_low) (void);
 typedef uint8_t(*onewire_pin_read) (void);
-typedef void(*onewire_delay_us) (uint16_t);
+typedef void(*onewire_delay_us) (uint32_t);
 typedef void(*onewire_interrupts_on) (void);
 typedef void(*onewire_interrupts_off) (void);
 
@@ -94,7 +117,6 @@ uint8_t onewire_find_next(OneWireObject *ow, uint8_t *new_addr);
 void onewire_setup_search_family(OneWireObject *ow, uint8_t family_code);
 void onewire_reset_search(OneWireObject *ow);
 uint8_t onewire_rom_search(OneWireObject *ow, uint8_t *new_addr);
-bool onewire_read_rom(OneWireObject *ow, uint8_t rom[8]);
 
 #endif
 

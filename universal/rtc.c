@@ -68,7 +68,7 @@ void rtc_convert_minutes(RTC_time *time, uint8_t val) {
  * @param  val:       BCD value of hours. Including AM/PM/H24 flags (bits 6, 5)
  */
 void rtc_convert_hours(RTC_time *time, uint8_t val) {
-	if ((val & 0x80) == 1) {
+	if ((val & 0x80) > 0) {
 		// 12 format
 		if ((val) == 1) // PM
 			time->hour_format = RTC_PM;

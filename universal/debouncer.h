@@ -40,7 +40,7 @@ typedef enum {
   * @field	button_status		button is currently pressed
   * @field	button_pressed_count	number of button presses (hold button -> adds more presses) - must be pulled/decremented in user code
   */
-typedef struct DebounceButton2 {
+typedef struct DebounceButton_tag {
 	debouncer_is_button_down is_button_down;
 
 	uint16_t button_counter;

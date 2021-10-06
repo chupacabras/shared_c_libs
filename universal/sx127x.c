@@ -1,6 +1,56 @@
 #include "sx127x.h"
 
-uint8_t SX127X_SPIRead(SX127X_t *module, uint8_t addr) {
+const uint32_t SX127X_BW_FREQ[] = {7800, 10400, 15600, 20800, 31200, 41700, 62500, 125000, 250000, 500000};
+
+/**
+ * \brief Read byte from LoRa module
+ *
+ * Reads data from LoRa module from given address.
+ *
+ * \param[in]  module	Pointer to LoRa structure
+ * \param[in]  addr		Address from which data will be read
+ *
+ * \return			  Read data
+ */
+static uint8_t SX127X_SPIRead(SX127X_Handle *module, uint8_t addr);
+
+/**
+ * \brief Write byte to LoRa module
+ *
+ * Writes data to LoRa module under given address.
+ *
+ * \param[in]  module	Pointer to LoRa structure
+ * \param[in]  addr		Address under which data will be written
+ * \param[in]  cmd 		Data to write
+ */
+static void SX127X_SPIWrite(SX127X_Handle *module, uint8_t addr, uint8_t cmd);
+
+/**
+ * \brief Read data from LoRa module
+ *
+ * Reads data from LoRa module from given address.
+ *
+ * \param[in]  module	Pointer to LoRa structure
+ * \param[in]  addr		Address from which data will be read
+ * \param[out] rxBuf	Pointer to store read data
+ * \param[in]  length   Number of bytes to read
+ */
+static void SX127X_SPIBurstRead(SX127X_Handle *module, uint8_t addr, uint8_t *rxBuf, uint8_t length);
+
+/**
+ * \brief Write data to LoRa module
+ *
+ * Writes data to LoRa module under given address.
+ *
+ * \param[in]  module	Pointer to LoRa structure
+ * \param[in]  addr		Address under which data will be written
+ * \param[in]  txBuf	Pointer to data
+ * \param[in]  length   Number of bytes to write
+ */
+static void SX127X_SPIBurstWrite(SX127X_Handle *module, uint8_t addr, uint8_t *txBuf, uint8_t length);
+
+
+static uint8_t SX127X_SPIRead(SX127X_Handle *module, uint8_t addr) {
 	uint8_t tmp;
 
 	module->set_nss(0);
@@ -10,14 +60,14 @@ uint8_t SX127X_SPIRead(SX127X_t *module, uint8_t addr) {
 	return tmp;
 }
 
-void SX127X_SPIWrite(SX127X_t *module, uint8_t addr, uint8_t cmd) {
+static void SX127X_SPIWrite(SX127X_Handle *module, uint8_t addr, uint8_t cmd) {
 	module->set_nss(0);
 	module->write_reg(module, addr | 0x80, &cmd, 1);
 	module->set_nss(1);
 }
 
-void SX127X_SPIBurstRead(SX127X_t *module, uint8_t addr, uint8_t *rxBuf, uint8_t length) {
-	if (length <= 1) {
+static void SX127X_SPIBurstRead(SX127X_Handle *module, uint8_t addr, uint8_t *rxBuf, uint8_t length) {
+	if (length ==0) {
 		return;
 	} else {
 		module->set_nss(0);
@@ -26,8 +76,8 @@ void SX127X_SPIBurstRead(SX127X_t *module, uint8_t addr, uint8_t *rxBuf, uint8_t
 	}
 }
 
-void SX127X_SPIBurstWrite(SX127X_t *module, uint8_t addr, uint8_t *txBuf, uint8_t length) {
-	if (length <= 1) {
+static void SX127X_SPIBurstWrite(SX127X_Handle *module, uint8_t addr, uint8_t *txBuf, uint8_t length) {
+	if (length ==0) {
 		return;
 	} else {
 		module->set_nss(0);
@@ -36,33 +86,8 @@ void SX127X_SPIBurstWrite(SX127X_t *module, uint8_t addr, uint8_t *txBuf, uint8_
 	}
 }
 
-void SX127X_init(SX127X_t *module, uint64_t frequency, SX127X_Power_t power, SX127X_SpreadFactor_t LoRa_SF, SX127X_LoRaBandwidth_t LoRa_BW, SX127X_CodingRate_t LoRa_CR,
-		SX127X_CRC_Sum_t LoRa_CRC_sum, uint8_t packetLength, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms,
-		device_get_dio0_ptr get_dio0, device_set_nss_ptr set_nss, device_set_nreset_ptr set_nreset) {
 
-	module->set_nreset = set_nreset;
-	module->set_nss = set_nss;
-	module->get_dio0 = get_dio0;
-	module->delay_ms = delay_ms;
-	module->write_reg = write_reg;
-	module->read_reg = read_reg;
-
-	module->set_nss(1);
-	module->set_nreset(1);
-
-	module->frequency = frequency;
-	module->highFrequency = frequency > 525000000;
-	module->power = power;
-	module->LoRa_SF = LoRa_SF;
-	module->LoRa_BW = LoRa_BW;
-	module->LoRa_CR = LoRa_CR;
-	module->LoRa_CRC_sum = LoRa_CRC_sum;
-	module->packetLength = packetLength;
-
-	SX127X_config(module);
-}
-
-void SX127X_reset(SX127X_t *module) {
+void SX127X_reset(SX127X_Handle *module) {
 	module->set_nss(1);
 	module->set_nreset(0);
 	module->delay_ms(1);
@@ -70,246 +95,484 @@ void SX127X_reset(SX127X_t *module) {
 	module->delay_ms(100);
 }
 
-void SX127X_config(SX127X_t *module) {
-	SX127X_sleep(module); //Change modem mode Must in Sleep mode
-	module->delay_ms(15);
-
-	SX127X_entryLoRa(module);
-	//SX127X_SPIWrite(module, 0x5904); //?? Change digital regulator form 1.6V to 1.47V: see errata note
-
-	// Fstep=Fxosc/2^19
-	// Frf=Fstep * frf(23:0)
-	// frf(23:0) = Frf / (Fxosc/2^19)) = Frf * 2^19 / Fxosc
-	uint64_t freq = ((uint64_t) module->frequency << 19) / 32000000;
-	uint8_t freq_reg[3];
-	freq_reg[0] = (uint8_t) (freq >> 16);
-	freq_reg[1] = (uint8_t) (freq >> 8);
-	freq_reg[2] = (uint8_t) (freq >> 0);
-	SX127X_SPIBurstWrite(module, SX127X_RegFrMsb, (uint8_t*) freq_reg, 3); //setting  frequency parameter
-
-	// LoRaWAN
-	SX127X_SPIWrite(module, SX127X_FSK_RegSyncWord, 0x34);
-
-	// output power
-	SX127X_SPIWrite(module, SX127X_RegPaConfig, SX127X_Power[module->power]); //Setting output power parameter
-
-	// disable over-current protection
-	SX127X_SPIWrite(module, SX127X_RegOcp, 0x0B); //RegOcp,Close Ocp
-	// maximum gain, LNA boost
-	SX127X_SPIWrite(module, SX127X_RegLna, 0x23); //RegLNA,High & LNA Enable
-
-	if (SX127X_SpreadFactor[module->LoRa_SF] == 6) { //SFactor=6
-		uint8_t tmp;
-		SX127X_SPIWrite(module, SX127X_LoRa_RegModemConfig1, ((SX127X_LoRaBandwidth[module->LoRa_BW] << 4) + (SX127X_CodingRate[module->LoRa_CR] << 1) + 0x01)); //Implicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04)
-
-		SX127X_SPIWrite(module, SX127X_LoRa_RegModemConfig2, ((SX127X_SpreadFactor[module->LoRa_SF] << 4) + (SX127X_CRC_Sum[module->LoRa_CRC_sum] << 2) + 0x03));
-
-		tmp = SX127X_SPIRead(module, SX127X_LoRa_RegDetectOptimize);
-		tmp &= 0xF8;
-		tmp |= 0x05;
-		SX127X_SPIWrite(module, SX127X_LoRa_RegDetectOptimize, tmp);
-		SX127X_SPIWrite(module, SX127X_LoRa_RegDetectionThreshold, 0x0C);
-	} else {
-		SX127X_SPIWrite(module, SX127X_LoRa_RegModemConfig1, ((SX127X_LoRaBandwidth[module->LoRa_BW] << 4) + (SX127X_CodingRate[module->LoRa_CR] << 1) + 0x00)); //Explicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04)
-
-		SX127X_SPIWrite(module, SX127X_LoRa_RegModemConfig2, ((SX127X_SpreadFactor[module->LoRa_SF] << 4) + (SX127X_CRC_Sum[module->LoRa_CRC_sum] << 2) + 0x00)); //SFactor &  LNA gain set by the internal AGC loop
-	}
-
-	// enable AGC (automatic gain control)
-	SX127X_SPIWrite(module, SX127X_LoRa_RegModemConfig3, 0x04);
-
-	SX127X_SPIWrite(module, SX127X_LoRa_RegSymbTimeoutLsb, 0x08); //RegSymbTimeoutLsb Timeout = 0x3FF(Max)
-	SX127X_SPIWrite(module, SX127X_LoRa_RegPreambleMsb, 0x00); //RegPreambleMsb
-	SX127X_SPIWrite(module, SX127X_LoRa_RegPreambleLsb, 8); //RegPreambleLsb 8+4=12byte Preamble
-	SX127X_SPIWrite(module, SX127X_RegDioMapping2, 0x01); //RegDioMapping2 0b01: DIO5 (ClkOut), DIO4 (PllLock), DIO0 (TxDone)
-	module->readBytes = 0;
-	SX127X_standby(module); //Entry standby mode
+void SX127X_clearLoRaIrq(SX127X_Handle *module) {
+	SX127X_SPIWrite(module, SX127X_LORA_REG_IRQ_FLAGS, 0xFF);
 }
 
-int8_t SX127X_LoRaEntryRx(SX127X_t *module, uint8_t length, uint32_t timeout) {
-	uint8_t addr;
-
-	module->packetLength = length;
-
-	SX127X_config(module); //Setting base parameter
-	// set normal output power
-	SX127X_SPIWrite(module, SX127X_RegPaDac, 0x84); //Normal and RX
-
-	// FHSS enabled
-	SX127X_SPIWrite(module, SX127X_LoRa_RegHopPeriod, 0xFF);
-
-	SX127X_SPIWrite(module, SX127X_RegDioMapping1, 0x01); //DIO0=00 (RxDone), DIO1=00 (RxTimeout), DIO2=00 (FhssChangeChannel), DIO3=01 (ValidHeader))
-
-	SX127X_SPIWrite(module, SX127X_LoRa_RegIrqFlagsMask, 0x3F); //Open RxDone interrupt & Timeout
-	SX127X_clearLoRaIrq(module);
-	SX127X_SPIWrite(module, SX127X_LoRa_RegPayloadLength, length); //Payload Length 21byte(this register must difine when the data long of one byte in SF is 6)
-	addr = SX127X_SPIRead(module, SX127X_LoRa_RegFifoRxBaseAddr); //Read RxBaseAddr
-	SX127X_SPIWrite(module, SX127X_LoRa_RegFifoAddrPtr, addr); //RxBaseAddr->FiFoAddrPtr
-	// LoRa mode, RX continuous
-	SX127X_SPIWrite(module, SX127X_RegOpMode,
-	SX127X_OPMODE_LORA | SX127X_OPMODE_RXCONTINUOUS | (module->highFrequency ?
-	SX127X_OPMODE_HIGH_FREQ :
-																				SX127X_OPMODE_LOW_FREQ));
-	//SX127X_SPIWrite(module, SX127X_LoRa_RegOpMode,0x05);	//Continuous Rx Mode //High Frequency Mode
-	module->readBytes = 0;
-
-	while (1) {
-		if ((SX127X_SPIRead(module, SX127X_LoRa_RegModemStat) & 0x04) == 0x04) { //Rx-on going RegModemStat
-			module->status = RX;
-			return 1;
-		}
-		if (--timeout == 0) {
-			SX127X_reset(module);
-			SX127X_config(module);
-			return 0;
-		}
-		module->delay_ms(1);
-	}
-}
-
-uint8_t SX127X_LoRaRxPacket(SX127X_t *module) {
-	unsigned char addr;
-	unsigned char packet_size;
-
-	if (module->get_dio0()) {
-		memset(module->rxBuffer, 0x00, SX127X_MAX_PACKET);
-
-		addr = SX127X_SPIRead(module, SX127X_LoRa_RegFifoRxCurrentAddr); //last packet addr
-		SX127X_SPIWrite(module, SX127X_LoRa_RegFifoAddrPtr, addr); //RxBaseAddr -> FiFoAddrPtr
-
-		if (module->LoRa_SF == SX127X_LORA_SF_6) { //When SpreadFactor is six,will used Implicit Header mode(Excluding internal packet length)
-			packet_size = module->packetLength;
-		} else {
-			packet_size = SX127X_SPIRead(module, SX127X_LoRa_RegRxNbBytes); //Number for received bytes
-		}
-
-		SX127X_SPIBurstRead(module, SX127X_RegFifo, module->rxBuffer, packet_size);
-		module->readBytes = packet_size;
-		SX127X_clearLoRaIrq(module);
-	}
-	return module->readBytes;
-}
-
-void SX127X_sleep(SX127X_t *module) {
-	SX127X_SPIWrite(module, SX127X_RegOpMode,
-	SX127X_OPMODE_SLEEP | (module->highFrequency ?
-	SX127X_OPMODE_HIGH_FREQ :
-													SX127X_OPMODE_LOW_FREQ));
-	module->status = SLEEP;
-}
-
-void SX127X_standby(SX127X_t *module) {
-	SX127X_SPIWrite(module, SX127X_RegOpMode,
-	SX127X_OPMODE_STANDBY | (module->highFrequency ?
-	SX127X_OPMODE_HIGH_FREQ :
-														SX127X_OPMODE_LOW_FREQ));
-	module->status = STANDBY;
-}
-
-void SX127X_entryLoRa(SX127X_t *module) {
-	SX127X_SPIWrite(module, SX127X_RegOpMode,
-	SX127X_OPMODE_SLEEP | SX127X_OPMODE_LORA | (module->highFrequency ?
-	SX127X_OPMODE_HIGH_FREQ :
-																		SX127X_OPMODE_LOW_FREQ));
-}
-
-void SX127X_clearLoRaIrq(SX127X_t *module) {
-	SX127X_SPIWrite(module, SX127X_LoRa_RegIrqFlags, 0xFF);
-}
-
-int8_t SX127X_LoRaEntryTx(SX127X_t *module, uint8_t length, uint32_t timeout) {
-	uint8_t addr;
-	uint8_t temp;
-
-	module->packetLength = length;
-
-	SX127X_config(module); //setting base parameter
-	SX127X_SPIWrite(module, SX127X_RegPaDac, 0x87); //Tx for 20dBm
-	SX127X_SPIWrite(module, SX127X_LoRa_RegHopPeriod, 0x00); //RegHopPeriod NO FHSS
-	SX127X_SPIWrite(module, SX127X_RegDioMapping1, 0x41); //DIO0=01, DIO1=00,DIO2=00, DIO3=01
-	SX127X_clearLoRaIrq(module);
-	SX127X_SPIWrite(module, SX127X_LoRa_RegIrqFlagsMask, 0xF7); //Open TxDone interrupt
-	SX127X_SPIWrite(module, SX127X_LoRa_RegPayloadLength, length); //RegPayloadLength 21byte
-	addr = SX127X_SPIRead(module, SX127X_LoRa_RegFifoTxBaseAddr); //RegFiFoTxBaseAddr
-	SX127X_SPIWrite(module, SX127X_LoRa_RegFifoAddrPtr, addr); //RegFifoAddrPtr
-
-	while (1) {
-		temp = SX127X_SPIRead(module, SX127X_LoRa_RegPayloadLength);
-		if (temp == length) {
-			module->status = TX;
-			return 1;
-		}
-
-		if (--timeout == 0) {
-			SX127X_reset(module);
-			SX127X_config(module);
-			return 0;
-		}
-	}
-}
-
-int8_t SX127X_LoRaTxPacket(SX127X_t *module, uint8_t *txBuffer, uint8_t length, uint32_t timeout) {
-	SX127X_SPIBurstWrite(module, SX127X_RegFifo, txBuffer, length);
-	SX127X_SPIWrite(module, SX127X_RegOpMode,
-	SX127X_OPMODE_LORA | SX127X_OPMODE_TX | (module->highFrequency ?
-	SX127X_OPMODE_HIGH_FREQ :
-																		SX127X_OPMODE_LOW_FREQ)); //Tx Mode
-
-	while (1) {
-		if (module->get_dio0()) { //if(Get_NIRQ()) //Packet send over
-			SX127X_SPIRead(module, SX127X_LoRa_RegIrqFlags);
-			SX127X_clearLoRaIrq(module); //Clear irq
-			SX127X_standby(module); //Entry Standby mode
-			return 0;
-		}
-
-		if (--timeout == 0) {
-			SX127X_reset(module);
-			SX127X_config(module);
-			return 1;
-		}
-		module->delay_ms(1);
-	}
-}
-
-int8_t SX127X_transmit(SX127X_t *module, uint8_t *txBuf, uint8_t length, uint32_t timeout) {
-	if (SX127X_LoRaEntryTx(module, length, timeout)) {
-		return SX127X_LoRaTxPacket(module, txBuf, length, timeout);
-	}
-
-	return 1;
-}
-
-int8_t SX127X_receive(SX127X_t *module, uint8_t length, uint32_t timeout) {
-	return SX127X_LoRaEntryRx(module, length, timeout);
-}
-
-uint8_t SX127X_available(SX127X_t *module) {
-	return SX127X_LoRaRxPacket(module);
-}
-
-uint8_t SX127X_read(SX127X_t *module, uint8_t *rxBuf, uint8_t length) {
-	if (length != module->readBytes)
-		length = module->readBytes;
-	memcpy(rxBuf, module->rxBuffer, length);
-	rxBuf[length] = '\0';
-	module->readBytes = 0;
-
-	return length;
-}
-
-uint8_t SX127X_RSSI_LoRa(SX127X_t *module) {
-	uint16_t temp = 10;
-	temp = SX127X_SPIRead(module, SX127X_LoRa_RegRssiValue); //Read RegRssiValue, Rssi value
+uint8_t SX127X_RSSI_LoRa(SX127X_Handle *module) {
+	uint16_t temp;
+	temp = SX127X_SPIRead(module, SX127X_LORA_REG_RSSI_VALUE); //Read RegRssiValue, Rssi value
 	temp = temp + 127 - 137; //127:Max RSSI, 137:RSSI offset
 
 	return (uint8_t) temp;
 }
 
-uint8_t SX127X_RSSI_FSK(SX127X_t *module) {
-	uint8_t temp = 0xff;
-	temp = SX127X_SPIRead(module, SX127X_FSK_RegRssiValue);
+uint8_t SX127X_RSSI_FSK(SX127X_Handle *module) {
+	uint8_t temp;
+	temp = SX127X_SPIRead(module, SX127X_FSK_REG_RSSI_VALUE);
 	temp = 127 - (temp >> 1); //127:Max RSSI
 
 	return temp;
+}
+
+
+
+
+
+
+
+void SX127X_setLoRaIrqMode(SX127X_Handle *module, SX127X_IRQ_Source irq_source, bool irq_enabled) {
+	uint8_t d;
+	d = SX127X_SPIRead(module, SX127X_LORA_REG_IRQ_FLAGS_MASK);
+
+	if (irq_enabled) {
+		d=d & (~irq_source);
+	} else {
+		d=d | (irq_source);
+	}
+
+	SX127X_SPIWrite(module, SX127X_LORA_REG_IRQ_FLAGS_MASK, d);
+}
+SX127X_Register_LoRa_RegIrqFlags SX127X_getLoRaIrq(SX127X_Handle *module) {
+	SX127X_Register_LoRa_RegIrqFlags d;
+	d.DATA = SX127X_SPIRead(module, SX127X_LORA_REG_IRQ_FLAGS);
+	return d;
+}
+uint8_t SX127X_getVersion(SX127X_Handle *module) {
+	return SX127X_SPIRead(module, SX127X_REG_VERSION);
+}
+// returns dBm value
+int16_t SX127X_getPacketRssiDbm(SX127X_Handle *module) {
+	int16_t val=SX127X_SPIRead(module, SX127X_LORA_REG_PKT_RSSI_VALUE);
+	if (module->highFrequency) {
+		return val-157;
+	} else {
+		return val-164;
+	}
+}
+// returns dB value
+int8_t SX127X_getPacketSnrDb(SX127X_Handle *module) {
+	uint8_t val=SX127X_SPIRead(module, SX127X_LORA_REG_PKT_SNR_VALUE);
+	return ((int8_t)val)/4;
+}
+
+void SX127X_setFrequency(SX127X_Handle *module, uint32_t frequency) {
+	// Fstep=Fxosc/2^19
+	// Frf=Fstep * frf(23:0)
+	// frf(23:0) = Frf / (Fxosc/2^19)) = Frf * 2^19 / Fxosc
+	uint64_t freq = module->frequency;
+	freq=(freq << 19) / 32000000;
+	uint8_t freq_reg[3];
+	freq_reg[0] = (uint8_t) (freq >> 16);
+	freq_reg[1] = (uint8_t) (freq >> 8);
+	freq_reg[2] = (uint8_t) (freq >> 0);
+	//setting  frequency parameter
+	SX127X_SPIBurstWrite(module, SX127X_REG_FR_MSB, (uint8_t*) freq_reg, 3);
+
+
+	SX127X_Operation_Mode op=SX127X_getOperationMode(module);
+	op.LowFrequencyModeOn=frequency < 779000000;
+	SX127X_SPIWrite(module, SX127X_REG_OP_MODE, op.DATA);
+}
+
+
+
+
+void SX127X_init(SX127X_Handle *module, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, device_set_nss_ptr set_nss, device_set_nreset_ptr set_nreset) {
+	module->set_nreset = set_nreset;
+	module->set_nss = set_nss;
+	module->delay_ms = delay_ms;
+	module->write_reg = write_reg;
+	module->read_reg = read_reg;
+
+	SX127X_reset(module);
+}
+
+void SX127X_config_LoRa(SX127X_Handle *module, uint32_t frequency, SX127X_SpreadFactor sf, SX127X_CRC crc, SX127X_CodingRate codingRate, SX127X_LoRaBandwidth bw, uint8_t syncWord) {
+	module->frequency = frequency;
+	module->LoRa_SF = sf;
+	module->LoRa_BW = bw;
+	module->LoRa_CR = codingRate;
+
+	SX127X_setLongRangeMode(module, SX127X_LORA_MODE);
+
+	// Preamble length = 8+4=12byte
+	SX127X_setPreambleLength(module, 8);
+
+	SX127X_setSyncWord(module, syncWord);
+
+	SX127X_setFrequency(module, frequency);
+	SX127X_setCrcMode(module, crc);
+	SX127X_setSpreadingFactor(module, sf);
+	SX127X_setCodingRate(module, codingRate);
+	SX127X_setSignalBandwidth(module, bw);
+
+	//RegHopPeriod NO FHSS
+	SX127X_SPIWrite(module, SX127X_LORA_REG_HOP_PERIOD, 0x00);
+
+	// set highest LNA gain
+	// not needed, LNA gain is set by AGC
+	//SX127X_setLnaGain(module, SX127X_LNA_GAIN_HIGHEST);
+
+	SX127X_enableAgc(module, true);
+
+	// enable LNA boost for HF mode
+	SX127X_enableLnaBoostHf(module, true);
+
+
+	// set maximum RX symbol timeout
+	SX127X_setRxSymbolTimeout(module, 0x3ff);
+
+	// optimize for low datarate
+	// LowDataRateOptimize=1, mandated for when the symbol length exceeds 16ms -> bitrate < 62.5 Bps (500 bps)
+	// Rs = BW / 2^SF, Ts = 2^SF / BW
+	uint16_t rs=1<<sf;
+	rs=rs/SX127X_BW_FREQ[bw];
+	SX127X_setLowDatarateOptimize(module, rs<62);
+
+	// disable over-current protection
+	SX127X_disableOcp(module);
+
+	// set TX and RX base address to 0x00
+	SX127X_SPIWrite(module, SX127X_LORA_REG_FIFO_TX_BASE_ADDR, 0x00);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_FIFO_RX_BASE_ADDR, 0x00);
+
+
+	// enable interrupts
+	SX127X_setLoRaIrqMode(module, SX127X_RX_DONE, true);
+	SX127X_setLoRaIrqMode(module, SX127X_VALID_HEADER, true);
+	SX127X_setLoRaIrqMode(module, SX127X_PAYLOAD_CRC_ERROR, true);
+	SX127X_setLoRaIrqMode(module, SX127X_RX_TIMEOUT, true);
+	SX127X_setLoRaIrqMode(module, SX127X_TX_DONE, true);
+	SX127X_setLoRaIrqMode(module, SX127X_CAD_DONE, true);
+
+	//Enter standby mode
+	SX127X_setMode(module, SX127X_MODE_STANDBY);
+}
+
+void SX127X_config_LoRa_Tx(SX127X_Handle *module, uint8_t dbm) {
+	SX127X_setOutputPowerDbm(module, dbm);
+
+	// TxDone on DIO0
+	SX127X_SPIWrite(module, SX127X_REG_DIO_MAPPING1, SX127X_DIOMAPPING1_DIO0_01);
+
+	SX127X_clearLoRaIrq(module);
+}
+
+uint8_t SX127X_readReceivedPacket(SX127X_Handle *module, uint8_t *buf) {
+	// last packet addr
+	uint8_t addr = SX127X_SPIRead(module, SX127X_LORA_REG_FIFO_RX_CURRENT_ADDR);
+//	uint8_t addr = SX127X_SPIRead(module, SX127X_LORA_REG_FIFO_RX_BASE_ADDR);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_FIFO_ADDR_PTR, addr);
+
+	uint8_t packetSize;
+	SX127X_Modem_Config1 cfg1;
+	cfg1.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG1);
+	if (cfg1.ImplicitHeaderModeOn) {
+		packetSize = module->packetLength;
+	} else {
+		packetSize = SX127X_SPIRead(module, SX127X_LORA_REG_RX_NB_BYTES);
+	}
+
+//	memset(buf, 0x00, packetSize);
+
+	SX127X_SPIBurstRead(module, SX127X_REG_FIFO, buf, packetSize);
+	SX127X_clearLoRaIrq(module);
+
+	return packetSize;
+
+}
+void SX127X_config_LoRa_Rx(SX127X_Handle *module, uint8_t defaultLength) {
+	SX127X_setMode(module, SX127X_MODE_STANDBY);
+
+	// to set defaults
+	SX127X_setOutputPowerDbm(module, 17);
+
+	module->packetLength = defaultLength;
+
+	// must be disabled in RX
+	SX127X_setHighPowerOperation(module, false);
+
+	// RxDone on DIO0
+	SX127X_SPIWrite(module, SX127X_REG_DIO_MAPPING1, SX127X_DIOMAPPING1_DIO0_00);
+
+	// set address in FIFO
+	uint8_t addr = SX127X_SPIRead(module, SX127X_LORA_REG_FIFO_RX_BASE_ADDR);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_FIFO_ADDR_PTR, addr);
+
+	SX127X_clearLoRaIrq(module);
+
+	SX127X_setMode(module, SX127X_MODE_RXCONTINUOUS);
+}
+
+void SX127X_sendPacket(SX127X_Handle *module, uint8_t *data, uint8_t packet_size) {
+	// FIFO can only be filled in Standby mode
+	SX127X_setMode(module, SX127X_MODE_STANDBY);
+
+	// set address in FIFO
+	uint8_t addr = SX127X_SPIRead(module, SX127X_LORA_REG_FIFO_TX_BASE_ADDR);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_FIFO_ADDR_PTR, addr);
+
+	// set payload length
+	SX127X_SPIWrite(module, SX127X_LORA_REG_PAYLOAD_LENGTH, packet_size);
+
+	// fill data info FIFO
+	SX127X_SPIBurstWrite(module, SX127X_REG_FIFO, data, packet_size);
+
+	// start sending
+	SX127X_setMode(module, SX127X_MODE_TX);
+}
+
+SX127X_Operation_Mode SX127X_getOperationMode(SX127X_Handle *module) {
+	SX127X_Operation_Mode c;
+	c.DATA=SX127X_SPIRead(module, SX127X_REG_OP_MODE);
+	return c;
+}
+
+void SX127X_setMode(SX127X_Handle *module, SX127X_Mode mode) {
+	uint8_t d=SX127X_SPIRead(module, SX127X_REG_OP_MODE);
+
+	SX127X_SPIWrite(module, SX127X_REG_OP_MODE, (d & 0b11111000) | mode);
+}
+
+// high power operation must be disabled for RX
+void SX127X_setHighPowerOperation(SX127X_Handle *module, bool enable_high_power) {
+	if (enable_high_power) {
+		// enable high power operation
+		// Set Pmax to +20dBm for PA_HP
+		// default value=0x84 = disabled
+		SX127X_SPIWrite(module, SX127X_REG_PA_DAC, 0x87);
+
+	} else {
+		// set normal output power
+		// disable high power operation for RX
+		// default value=0x84 = disabled
+		SX127X_SPIWrite(module, SX127X_REG_PA_DAC, 0x84);
+	}
+}
+
+
+void SX127X_setLongRangeMode(SX127X_Handle *module, SX127X_LongRangeMode long_range_mode) {
+	SX127X_Operation_Mode op=SX127X_getOperationMode(module);
+
+	// This bit can be modified only in Sleep mode. A write operation on other device modes is ignored.
+	if (op.Mode!=SX127X_MODE_SLEEP) {
+		op.Mode=SX127X_MODE_SLEEP;
+		SX127X_SPIWrite(module, SX127X_REG_OP_MODE, op.DATA);
+	}
+
+	op.LongRangeMode=(long_range_mode==SX127X_LORA_MODE);
+	SX127X_SPIWrite(module, SX127X_REG_OP_MODE, op.DATA);
+
+//	SX127X_setMode(module, SX127X_MODE_STANDBY);
+
+}
+
+void SX127X_setCrcMode(SX127X_Handle *module, SX127X_CRC crc) {
+	SX127X_Modem_Config2 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG2);
+	cfg.RxPayloadCrcOn=crc;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG2, cfg.DATA);
+}
+
+void SX127X_setSpreadingFactor(SX127X_Handle *module, SX127X_SpreadFactor sf) {
+	SX127X_Modem_Config2 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG2);
+	cfg.SpreadingFactor=sf;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG2, cfg.DATA);
+
+	if (sf==SX127X_LORA_SF_6) {
+		// The header must be set to Implicit mode
+		SX127X_Modem_Config1 cfg1;
+		cfg1.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG1);
+		cfg1.ImplicitHeaderModeOn=1;
+		SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG1, cfg1.DATA);
+	}
+
+	// optimize detection
+	uint8_t det=SX127X_SPIRead(module, SX127X_LORA_REG_DETECT_OPTIMIZE);
+	det &= 0b11111000;
+
+	if (sf==SX127X_LORA_SF_6) {
+		det |= 0b00000101;
+	} else {
+		det |= 0b00000011;
+	}
+	SX127X_SPIWrite(module, SX127X_LORA_REG_DETECT_OPTIMIZE, det);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_DETECTION_THRESHOLD, (sf==SX127X_LORA_SF_6)?0x0C:0x0A);
+
+}
+
+void SX127X_setCodingRate(SX127X_Handle *module, SX127X_CodingRate codingRate) {
+	SX127X_Modem_Config1 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG1);
+	cfg.CodingRate=codingRate;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG1, cfg.DATA);
+}
+
+void SX127X_setSignalBandwidth(SX127X_Handle *module, SX127X_LoRaBandwidth bw) {
+	SX127X_Modem_Config1 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG1);
+	cfg.Bw=bw;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG1, cfg.DATA);
+
+	uint8_t reg36=0x03;
+	uint8_t reg3a=0x65;
+
+	if (bw==SX127X_LORA_BW_500KHZ) {
+		// Sensitivity Optimization for a 500 kHz Bandwidth
+		// See errata notes
+		if (module->frequency>=862000000) {
+			reg36=0x02;
+			reg3a=0x64;
+		} else if (module->frequency>=410000000 && module->frequency>=525000000) {
+			reg36=0x02;
+			reg3a=0x7f;
+		}
+	}
+
+	SX127X_SPIWrite(module, SX127X_LORA_REG_HIGH_BW_OPTIMIZE1, reg36);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_HIGH_BW_OPTIMIZE2, reg3a);
+}
+
+// value between 0x000 - 0x3ff
+void SX127X_setRxSymbolTimeout(SX127X_Handle *module, uint16_t timeout) {
+	if (timeout>0x3ff) timeout=0x3ff;
+
+	// write MSB
+	SX127X_Modem_Config2 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG2);
+	cfg.SymbTimeoutMSB=(timeout>>8) & 0b11;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG2, cfg.DATA);
+
+	// write LSB
+	SX127X_SPIWrite(module, SX127X_LORA_REG_SYMB_TIMEOUT_LSB, timeout & 0xff);
+}
+
+// AGC = automatic gain control
+void SX127X_enableAgc(SX127X_Handle *module, bool enable_agc) {
+	SX127X_Modem_Config3 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG3);
+	cfg.AgcAutoOn=enable_agc;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG3, cfg.DATA);
+}
+
+// optimize for low datarate
+// LowDataRateOptimize=1, mandated for when the symbol length exceeds 16ms -> bitrate < 62.5 Bps (500 bps)
+// Rs = BW / 2^SF, Ts = 2^SF / BW
+void SX127X_setLowDatarateOptimize(SX127X_Handle *module, bool enable_optimize) {
+	SX127X_Modem_Config3 cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_LORA_REG_MODEM_CONFIG3);
+	cfg.LowDataRateOptimize=enable_optimize;
+	SX127X_SPIWrite(module, SX127X_LORA_REG_MODEM_CONFIG3, cfg.DATA);
+}
+
+void SX127X_enableLnaBoostHf(SX127X_Handle *module, bool enable) {
+	SX127X_Lna cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_REG_LNA);
+	cfg.LnaBoostHf=enable?0b11:0;
+	SX127X_SPIWrite(module, SX127X_REG_LNA, cfg.DATA);
+}
+
+void SX127X_setLnaGain(SX127X_Handle *module, SX127X_LnaGain lnaGain) {
+	SX127X_Lna cfg;
+	cfg.DATA=SX127X_SPIRead(module, SX127X_REG_LNA);
+	cfg.LnaGain=lnaGain;
+	SX127X_SPIWrite(module, SX127X_REG_LNA, cfg.DATA);
+}
+
+void SX127X_disableOcp(SX127X_Handle *module) {
+	SX127X_Ocp ocp;
+	ocp.DATA=SX127X_SPIRead(module, SX127X_REG_OCP);
+	ocp.OcpOn=0;
+	SX127X_SPIWrite(module, SX127X_REG_OCP, ocp.DATA);
+}
+
+// Imax current in mA; from 45mA to 240mA
+void SX127X_enableOcp(SX127X_Handle *module, uint8_t imax) {
+	SX127X_Ocp ocp;
+	ocp.DATA=SX127X_SPIRead(module, SX127X_REG_OCP);
+	ocp.OcpOn=1;
+	if (imax<=45) {
+		ocp.OcpTrim=0;
+	} else if (imax<=120) {
+		ocp.OcpTrim=(imax/5)-9;
+	} else if (imax<=240) {
+		ocp.OcpTrim=(imax/10)+3;
+	} else {
+		ocp.OcpTrim=0b11111;
+	}
+	SX127X_SPIWrite(module, SX127X_REG_OCP, ocp.DATA);
+}
+
+// +20dBm max. 1% duty cycle
+void SX127X_setOutputPowerDbm(SX127X_Handle *module, int8_t dbm) {
+	/* Output power of module is from -4 dBm to +15 dBm in "low" power devices,
+	 +2 dBm to +17 dBm in high power devices or +20 dBm in high power mode */
+	// only high power mode implemented (PA_BOOST)
+
+	if (dbm > 20) {
+		dbm=20;
+	}
+	if (dbm < 2) {
+		dbm=2;
+	}
+	if (dbm < 20 && dbm>17) {
+		dbm=17;
+	}
+
+	SX127X_PaConfig pa;
+	// PA_BOOST is selected
+	pa.PaSelect=1;
+
+	// if PaSelect = 1 (PA_BOOST pin):
+	// OutputPower = Pout - 2
+	// if PaSelect = 0 (RFO pin):
+	// OutputPower = Pout - Pmax + 15
+
+	pa.OutputPower=(dbm>17)?0b1111:(dbm-2);
+	pa.MaxPower=0b111;
+
+	module->high_power_settings=(dbm==20);
+
+	SX127X_setHighPowerOperation(module, module->high_power_settings);
+	SX127X_SPIWrite(module, SX127X_REG_PA_CONFIG, pa.DATA);
+
+}
+
+// PreambleLength from 6 to 65535
+// yielding total preamble lengths of 6+4 to 65535+4 symbols
+void SX127X_setPreambleLength(SX127X_Handle *module, uint16_t len) {
+	if (len<6) len=6;
+
+	SX127X_SPIWrite(module, SX127X_LORA_REG_PREAMBLE_MSB, (len >> 8) & 0xff);
+	SX127X_SPIWrite(module, SX127X_LORA_REG_PREAMBLE_LSB, len & 0xff);
+}
+
+// default value = 0x12
+// Value 0x34 is reserved for LoRaWAN networks
+void SX127X_setSyncWord(SX127X_Handle *module, uint8_t syncWord) {
+	SX127X_SPIWrite(module, SX127X_LORA_REG_SYNC_WORD, syncWord);
+}
+
+// CAD = carrier activity detection
+// timeout = loop count.
+// it takes 100 loops on 72MHz
+bool SX127X_cad(SX127X_Handle *module, uint16_t timeout) {
+	SX127X_setMode(module, SX127X_MODE_STANDBY);
+
+	SX127X_clearLoRaIrq(module);
+
+	SX127X_setMode(module, SX127X_MODE_CAD);
+
+	while (true) {
+		if (timeout==0) return false;
+
+		SX127X_Register_LoRa_RegIrqFlags irq=SX127X_getLoRaIrq(module);
+		if (irq.CadDone) {
+			return irq.CadDetected;
+		}
+		timeout--;
+	}
+
 }

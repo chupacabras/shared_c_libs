@@ -41,10 +41,6 @@ void rfm69_hw_delay_ms(uint16_t ms) {
 	HAL_Delay(ms);
 }
 
-void hw_delay_ms(uint16_t ms) {
-	HAL_Delay(ms);
-}
-
 int main(void) {
 	// standard HAL initializations here
 	...

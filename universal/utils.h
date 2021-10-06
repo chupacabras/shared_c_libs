@@ -16,7 +16,7 @@ void char2binary(uint8_t *buffer, uint8_t c, bool separated);
 void long2hex(uint8_t *buffer, uint32_t i);
 void int2hex(uint8_t *buffer, uint16_t i);
 void char2hex(uint8_t *buffer, uint8_t c);
-void long2string(uint8_t *buffer, int32_t i);
+uint8_t long2string(uint8_t *buffer, int32_t i);
 void double2string(uint8_t *buffer, double d, uint8_t decimals, uint8_t length);
 
 uint8_t bcd_to_num(uint8_t bcd);
