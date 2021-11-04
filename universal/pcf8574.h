@@ -20,11 +20,11 @@ typedef struct {
 	device_write_ptr write_reg;
 	device_read_ptr read_reg;
 	uint8_t addr;
-} PCF8574_Object;
+} PCF8574_Handle;
 
-void PCF8574_init(PCF8574_Object *obj, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg);
-uint8_t PCF8574_read_port(PCF8574_Object *obj);
-void PCF8574_write_port(PCF8574_Object *obj, uint8_t port_data);
+void PCF8574_init(PCF8574_Handle *obj, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg);
+uint8_t PCF8574_read_port(PCF8574_Handle *obj);
+void PCF8574_write_port(PCF8574_Handle *obj, uint8_t port_data);
 
 
 #endif /* INC_PCF8574_H_ */

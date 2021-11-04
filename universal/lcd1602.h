@@ -13,6 +13,8 @@
 #include <stdbool.h>
 #include "pcf8574.h"
 
+#define LCD_I2C_DEFAULT_ADDR			0b111
+
 #define LCD_CMD_CLEAR_DISPLAY			0b00000001
 #define LCD_CMD_CURSOR_RETURN			0b00000010
 #define LCD_CMD_ENTRY_MODE_SET			0b00000100
@@ -64,9 +66,10 @@
 #define LCD_I2C_BACKLIGHT_EN	0b1000
 
 typedef struct {
-	PCF8574_Object pcf8574_obj;
+	PCF8574_Handle pcf8574_obj;
 	device_delay_ms_ptr delay_ms;
-} LCD_Object;
+	uint8_t backlight_en;
+} LCD_Handle;
 
 typedef enum {
 	LCD_SHIFT__CURSOR,
@@ -88,17 +91,88 @@ typedef union {
 	};
 } LCD_BusyFlagAndAddressCounter;
 
-void LCD_init_i2c(LCD_Object *lcd, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
-LCD_BusyFlagAndAddressCounter LCD_get_busy_flag_and_address_counter(LCD_Object *lcd);
-void LCD_send_command(LCD_Object *lcd, uint8_t cmd);
-void LCD_send_data(LCD_Object *lcd, uint8_t data);
-void LCD_send_string(LCD_Object *lcd, char *str);
 
-void LCD_set_position(LCD_Object *lcd, uint8_t row, uint8_t col);
-void LCD_set_cursor(LCD_Object *lcd, bool show_cursor, bool blink);
-void LCD_clear(LCD_Object *lcd);
-void LCD_shift(LCD_Object *lcd, LCD_ShiftObject sc, LCD_ShiftDirection rl);
-void LCD_custom_character(LCD_Object *lcd, uint8_t index, uint8_t *data);
+/**
+ * @brief  LCD initialization (I2C mode, via PCF8574).
+ * @param	lcd*		pointer to LCD_Handle
+ * @param	addr_pins	A0, A1, A2 address pins (PCF8574). 0b000 to 0b111
+ * @param	write_reg	The function that writes command to the module. Hardware dependent.
+ * @param	read_reg	The function that reads data from the module. Hardware dependent.
+ * @param	delay_ms	The function that makes delay in milliseconds. Hardware dependent.
+ */
+void LCD_init_i2c(LCD_Handle *lcd, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
 
+/**
+ * @brief  Read busy flag and address counter.
+ * @param	lcd*			pointer to LCD_Handle
+ * @retval	LCD_BusyFlagAndAddressCounter
+ */
+LCD_BusyFlagAndAddressCounter LCD_get_busy_flag_and_address_counter(LCD_Handle *lcd);
+
+/**
+ * @brief  Send command to LCD module.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	cmd		Command to send.
+ */
+void LCD_send_command(LCD_Handle *lcd, uint8_t cmd);
+
+/**
+ * @brief  Send data to LCD module.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	data	Data to send.
+ */
+void LCD_send_data(LCD_Handle *lcd, uint8_t data);
+
+/**
+ * @brief  Send string to LCD module.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	str*	array of chars to send (string).
+ */
+void LCD_send_string(LCD_Handle *lcd, char *str);
+
+/**
+ * @brief  Set position in LCD display, where to print character on display.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	row		Row (values 0 to 1)
+ * @param	col		Column (values 0 to 39)
+ */
+void LCD_set_position(LCD_Handle *lcd, uint8_t row, uint8_t col);
+
+/**
+ * @brief  Set cursor.
+ * @param	lcd*			pointer to LCD_Handle
+ * @param	show_cursor		true = cursor is displayed
+ * @param	blink			true = cursor/character is blinking
+ */
+void LCD_set_cursor(LCD_Handle *lcd, bool show_cursor, bool blink);
+
+/**
+ * @brief  Clear LCD.
+ * @param	lcd*	pointer to LCD_Handle
+ */
+void LCD_clear(LCD_Handle *lcd);
+
+/**
+ * @brief  Shift display contents or cursor.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	sc		shift display data or cursor
+ * @param	el		shift to left or right
+ */
+void LCD_shift(LCD_Handle *lcd, LCD_ShiftObject sc, LCD_ShiftDirection rl);
+
+/**
+ * @brief  Define custom character. A command must follow this, not data write.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	index	index of character position (values from 0 to 7)
+ * @param	data*	array of 8 bytes. lowest 5 bits of each byte matter
+ */
+void LCD_custom_character(LCD_Handle *lcd, uint8_t index, uint8_t *data);
+
+/**
+ * @brief  Enable/disable LCD backlight.
+ * @param	lcd*	pointer to LCD_Handle
+ * @param	enable	boolean, enable backlight
+ */
+void LCD_backlight(LCD_Handle *lcd, bool enable);
 
 #endif /* INC_LCD1602_H_ */

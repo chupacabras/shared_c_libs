@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 
-struct DebounceButton2;
+struct DebounceButton_tag;
 
 /**
  * @brief  Returns status of button. Hardware dependent function.
@@ -26,7 +26,7 @@ typedef bool(*debouncer_is_button_down) (void);
  * @brief  Callback function for various events.
  * @field	DebounceButton		pointer to a button object that triggered event
  */
-typedef void(*debouncer_button_callback) (struct DebounceButton2*);
+typedef void(*debouncer_button_callback) (struct DebounceButton_tag*);
 
 typedef enum {
 	DEBOUNCER_BUTTON_MODE_SINGLEPRESS,		// 1 button press, holding button is ignored
