@@ -67,9 +67,32 @@ int cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 		cbuf->tail+=len;
 		if (cbuf->tail >=cbuf->size) cbuf->tail-=cbuf->size;
 	} else {
-		memcpy(data, &cbuf->buffer[cbuf->head], l);
+		memcpy(data, &cbuf->buffer[cbuf->tail], l);
 		memcpy(&data[l], cbuf->buffer, len-l);
 		cbuf->tail=len-l;
 	}
 	return 0;
+}
+
+int cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len) {
+	if (cbuffer_get_free_size(cbuf)< len+1) {
+		return -1;
+	}
+
+	cbuffer_put(cbuf, (uint8_t *)&len, 1);
+	cbuffer_put(cbuf, data, len);
+
+	return 0;
+
+}
+size_t cbuffer_get_object(CircularBuffer *cbuf, uint8_t *data) {
+	if (cbuffer_get_size(cbuf)< 2) {
+		return 0;
+	}
+
+	size_t len;
+	cbuffer_get(cbuf, (uint8_t *)&len, 1);
+	cbuffer_get(cbuf, data, len);
+
+	return len;
 }

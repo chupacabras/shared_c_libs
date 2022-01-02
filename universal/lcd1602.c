@@ -152,3 +152,7 @@ void LCD_backlight(LCD_Handle *lcd, bool enable) {
 	lcd->backlight_en=enable?LCD_I2C_BACKLIGHT_EN:0;
 	LCD_send_command(lcd, 0);
 }
+
+void LCD_display_off(LCD_Handle *lcd, bool off) {
+	LCD_send_command(lcd, LCD_CMD_DISPLAY_ON_OFF_CONTROL | (off?LCD_CONTROL_DISPLAY_OFF:LCD_CONTROL_DISPLAY_ON));
+}

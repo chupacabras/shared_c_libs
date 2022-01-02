@@ -9,6 +9,10 @@
 #include "utils.h"
 
 
+// maximal length of string (for internal processing)
+#define MAX_STRING_LENGTH	12
+
+
 /**
  * @brief  Convert number to string as binary number. For internal use only.
  * @param  buffer: Buffer where to build the string.
@@ -138,7 +142,7 @@ void long2hex(uint8_t *buffer, uint32_t i) {
 uint8_t long2string(uint8_t *buffer, int32_t i) {
 	int32_t n;
 	bool negate = false;
-	uint8_t c = 12;
+	uint8_t c = MAX_STRING_LENGTH;
 
 	if (i < 0) {
 		negate = true;
@@ -160,18 +164,18 @@ uint8_t long2string(uint8_t *buffer, int32_t i) {
 		buffer[c--] = '-';
 	}
 
-	memcpy(buffer, &buffer[c+1], 12-c);
+	memcpy(buffer, &buffer[c+1], MAX_STRING_LENGTH-c);
 	return 11-c;
 }
 
 /**
- * @brief  Convert double to string as decimal number.
+ * @brief  Convert double to string as decimal number. Fixed string length.
  * @param  buffer: Buffer where to build the string.
  * @param  f: number to convert
  * @param  decimals: number of places after decimal point
  * @param  length: number of all characters including minus sign. Filled with spaces at beginning.
  */
-void double2string(uint8_t *buffer, double d, uint8_t decimals, uint8_t length) {
+void double2string_fixed(uint8_t *buffer, double d, uint8_t decimals, uint8_t length) {
 	long mul = 1;
 	uint8_t q;
 	for (q = 0; q < decimals; q++) {
@@ -209,6 +213,54 @@ void double2string(uint8_t *buffer, double d, uint8_t decimals, uint8_t length) 
 	while (c >= 0) {
 		buffer[c--] = ' ';
 	}
+
+}
+
+/**
+ * @brief  Convert double to string as decimal number.
+ * @param  buffer: Buffer where to build the string.
+ * @param  f: number to convert
+ * @param  decimals: number of places after decimal point
+ */
+void double2string(uint8_t *buffer, double d, uint8_t decimals) {
+	long mul = 1;
+	uint8_t q;
+	for (q = 0; q < decimals; q++) {
+		mul = mul * 10;
+	}
+
+	int32_t n;
+	roundDouble(d*mul, &n);
+
+	int c = MAX_STRING_LENGTH;
+	bool negate = false;
+
+	if (d < 0) {
+		negate = true;
+		n = -n;
+	}
+
+
+	buffer[c--] = 0;
+	if (decimals > 0) {
+		for (q = 0; q < decimals; q++) {
+			buffer[c--] = (n % 10) + '0';
+			n = n / 10;
+		}
+		buffer[c--] = '.';
+	}
+
+	for (q = 0; q < MAX_STRING_LENGTH - decimals; q++) {
+		buffer[c--] = (n % 10) + '0';
+		n = n / 10;
+
+		if (n < 1) break;
+	}
+
+	if (negate && c >= 0) {
+		buffer[c--] = '-';
+	}
+	memcpy(buffer, &buffer[c+1], MAX_STRING_LENGTH-c);
 
 }
 

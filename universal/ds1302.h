@@ -105,7 +105,7 @@ void DS1302_write_time(DS1302_Object *obj, RTC_time * time);
 //void DS1302_set_seconds(DS1302_Object *obj, uint8_t val);
 //void DS1302_set_minutes(DS1302_Object *obj, uint8_t val);
 //void DS1302_set_hours(DS1302_Object *obj, uint8_t val, uint8_t hour_format);
-void DS1302_set_day_of_week(DS1302_Object *obj, uint8_t val);
+void DS1302_set_day_of_week(DS1302_Object *obj, RTCDay val);
 //void DS1302_set_date(DS1302_Object *obj, uint8_t val);
 //void DS1302_set_month(DS1302_Object *obj, uint8_t val);
 //void DS1302_set_year(DS1302_Object *obj, uint8_t val);

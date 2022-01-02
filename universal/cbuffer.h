@@ -38,4 +38,11 @@ int cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len);
 // -1 = error
 int cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len);
 
+// 0 = ok
+// -1 = error
+int cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len);
+
+// return size of object
+size_t cbuffer_get_object(CircularBuffer *cbuf, uint8_t *data);
+
 #endif /* INC_CBUFFER_H_ */

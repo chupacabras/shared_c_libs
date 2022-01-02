@@ -175,4 +175,6 @@ void LCD_custom_character(LCD_Handle *lcd, uint8_t index, uint8_t *data);
  */
 void LCD_backlight(LCD_Handle *lcd, bool enable);
 
+void LCD_display_off(LCD_Handle *lcd, bool off);
+
 #endif /* INC_LCD1602_H_ */

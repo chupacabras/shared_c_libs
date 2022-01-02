@@ -9,6 +9,7 @@
 #ifndef INC_AHT10_H_
 #define INC_AHT10_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "device.h"
 
@@ -24,7 +25,7 @@ typedef struct {
 	device_write_ptr write_reg;
 	device_read_ptr read_reg;
 	device_delay_ms_ptr delay_ms;
-} AHT10_Object;
+} AHT10_Handle;
 
 
 typedef struct {
@@ -32,13 +33,16 @@ typedef struct {
 } AHT10_Measurement;
 
 
-void AHT10_init(AHT10_Object *obj, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
-void AHT10_soft_reset(AHT10_Object *obj);
-void AHT10_trigger_measurement(AHT10_Object *obj);
-void AHT10_read_measurement(AHT10_Object *obj, AHT10_Measurement *measurement);
+uint8_t AHT10_init(AHT10_Handle *obj, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
+void AHT10_soft_reset(AHT10_Handle *obj);
+void AHT10_trigger_measurement(AHT10_Handle *obj);
+bool AHT10_read_measurement(AHT10_Handle *obj, AHT10_Measurement *measurement);
 
-float AHT10_convert_temperature(AHT10_Measurement *measurement);
-float AHT10_convert_humidity(AHT10_Measurement *measurement);
+float AHT10_convert_temperature_float(AHT10_Measurement *measurement);
+float AHT10_convert_humidity_float(AHT10_Measurement *measurement);
+
+int16_t AHT10_convert_temperature(AHT10_Measurement *measurement);
+uint16_t AHT10_convert_humidity(AHT10_Measurement *measurement);
 
 
 #endif /* INC_AHT10_H_ */

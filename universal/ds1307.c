@@ -303,7 +303,7 @@ void DS1307_clock_start(DS1307_Object *obj) {
  * @param  output:    Value of DS1307_OutputControl
  */
 void DS1307_set_output_control(DS1307_Object *obj, DS1307_OutputControl output) {
-	obj->write_cmd(obj, DS1307_REG_CONTROL, &output, 1);
+	obj->write_cmd(obj, DS1307_REG_CONTROL, (uint8_t *)&output, 1);
 }
 
 /**

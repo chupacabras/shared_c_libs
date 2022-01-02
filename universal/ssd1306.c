@@ -206,10 +206,10 @@ void SSD1306_display_buffer_partial(SSD1306_Object * obj, uint8_t x, uint8_t y, 
 			h=obj->lcd_height-y;
 		}
 
-	uint8_t trans_x;
-	uint8_t trans_y;
-	uint8_t trans_w;
-	uint8_t trans_h;
+	uint8_t trans_x=0;
+	uint8_t trans_y=0;
+	uint8_t trans_w=0;
+	uint8_t trans_h=0;
 
 	if (obj->rotation == SSD1306_ROTATION_0) {
 		trans_x=x;
@@ -472,8 +472,8 @@ void SSD1306_scroll_stop(SSD1306_Object * obj) {
 static void SSD1306_draw_pixel_unchecked(SSD1306_Object * obj, uint8_t x, uint8_t y, bool white) {
 	uint16_t i;
 
-	uint8_t trans_x;
-	uint8_t trans_y;
+	uint8_t trans_x=0;
+	uint8_t trans_y=0;
 
 	if (obj->rotation == SSD1306_ROTATION_0) {
 		trans_x=x;

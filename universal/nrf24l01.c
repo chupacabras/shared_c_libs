@@ -1161,6 +1161,38 @@ void nrf24_debug(NRF24_t *nrf24, nrf24_debug_print_fn print_fn) {
 			default:
 				break;
 			}
+#else
+			uint8_t addr[5];
+			uint8_t w;
+
+			switch (q) {
+
+			case 0x0a:
+			case 0x0b:
+			case 0x10:
+				nrf24_read_register_multibyte(nrf24, q, addr, 5);
+
+				for (w=0; w<5; w++) {
+					char2hex((uint8_t*)buf1, addr[w]);
+					print_fn((char*)buf1);
+					print_fn(" ");
+				}
+				print_fn("\n");
+				break;
+
+			case 0x0c:
+			case 0x0d:
+			case 0x0e:
+			case 0x0f:
+				nrf24_read_register_multibyte(nrf24, q, addr, 1);
+				char2hex((uint8_t*)buf1, addr[0]);
+				print_fn((char*)buf1);
+				print_fn("\n");
+				break;
+
+			default:
+				break;
+			}
 #endif
 			print_fn("\n");
 		}
