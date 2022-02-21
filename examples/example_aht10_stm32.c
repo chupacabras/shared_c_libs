@@ -22,7 +22,7 @@ int main(void) {
 	// standard HAL initializations here
 	...
 
-	uint8_t aht10found=AHT10_init(&aht10, aht10_i2c_write, aht10_i2c_read, hw_delay_ms);
+	uint8_t aht10found=AHT10_init(&aht10, 0, aht10_i2c_write, aht10_i2c_read, hw_delay_ms);
 
 	if (aht10found) {
 		AHT10_trigger_measurement(&aht10);

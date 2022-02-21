@@ -14,7 +14,8 @@
 #include "device.h"
 
 
-#define AHT10_ADDRESS			0b01110000
+#define AHT10_I2C_ADDRESS_LOW			0b01110000
+#define AHT10_I2C_ADDRESS_HIGH			0b01110010
 
 #define AHT10_CMD_INIT					0b11100001
 #define AHT10_CMD_TRIGGER_MEASUREMENT	0b10101100
@@ -25,6 +26,7 @@ typedef struct {
 	device_write_ptr write_reg;
 	device_read_ptr read_reg;
 	device_delay_ms_ptr delay_ms;
+	uint8_t addr;
 } AHT10_Handle;
 
 
@@ -33,7 +35,7 @@ typedef struct {
 } AHT10_Measurement;
 
 
-uint8_t AHT10_init(AHT10_Handle *obj, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
+uint8_t AHT10_init(AHT10_Handle *obj, uint8_t addrpin, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
 void AHT10_soft_reset(AHT10_Handle *obj);
 void AHT10_trigger_measurement(AHT10_Handle *obj);
 bool AHT10_read_measurement(AHT10_Handle *obj, AHT10_Measurement *measurement);

@@ -455,16 +455,13 @@ void SX127X_clearLoRaIrq(SX127X_Handle *module);
 void SX127X_config_LoRa_Rx(SX127X_Handle *module, uint8_t defaultLength);
 
 /**
- * \brief Entry reception mode
+ * \brief Enter transmission mode
  *
- * Entry reception mode
+ * Enter transmission mode
  *
  * \param[in]  module	Pointer to LoRa structure
- * \param[in]  length   Length of message to be received
- * \param[in]  timeout  Timeout in [ms]
+ * \param[in]  dbm  	Transmitting power
  *
- * \return	 1 if entering reception mode
- *			 0 if timeout was exceeded
  */
 void SX127X_config_LoRa_Tx(SX127X_Handle *module, uint8_t dbm);
 

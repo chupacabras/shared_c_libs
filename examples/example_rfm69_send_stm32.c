@@ -1,11 +1,11 @@
 #include "rfm69.h"
 
-#define RFM69_NODE_ADDRESS	0x02
+#define RFM69_NODE_ADDRESS		0x02
 #define RFM69_TARGET_NODE_ADDRESS	0x01
 
 RFM69_t rfm69;
 uint8_t receive_buf[255];
-uint16_t i;
+uint16_t counter;
 
 volatile uint8_t disabledInterruptLevels=0;
 
@@ -80,8 +80,8 @@ int main(void) {
 			rfm69.status=RFM69_STATUS_WAITING;
 		}
 
-		if (i>5000) {
-			i=0;
+		if (counter>5000) {
+			counter=0;
 			disable_interrupts();
 			RFM69_send_packet(&rfm69, RFM69_TARGET_NODE_ADDRESS, send_buf, 10, true, false, true, true);
 			enable_interrupts();
@@ -89,7 +89,7 @@ int main(void) {
 	}
 }
 
-
+// DIO0 external interrupt handling
 void EXTI15_10_IRQHandler(void) {
 	if (__HAL_GPIO_EXTI_GET_IT(RFM69_DIO0_Pin) != 0x00u) {
 		RFM69_interrupt_handler_io(&rfm69);
@@ -101,7 +101,7 @@ void EXTI15_10_IRQHandler(void) {
 
 // 1ms timer
 void TIM4_IRQHandler(void) {
-	i++;
+	counter++;
 	RFM69_interrupt_handler_timer(&rfm69);
 
 	// standard HAL interrupt handling

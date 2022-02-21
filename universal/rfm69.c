@@ -591,9 +591,12 @@ void RFM69_interrupt_handler_io(RFM69_t *module) {
 			RFM69_process_received_packet(module);
 			if (module->status==RFM69_STATUS_RECEIVED) {
 				if ((module->request_ack) && (module->target_addr!=module->broadcast_address)) {
-					RFM69_send_packet(module, module->sender_addr, NULL, 0, false, true, true, true);
 					module->timer=0;
-					module->status=RFM69_STATUS_SEND_ACK;
+					module->status=RFM69_STATUS_DELAY_SEND_ACK;
+
+//					RFM69_send_packet(module, module->sender_addr, NULL, 0, false, true, true, true);
+//					module->timer=0;
+//					module->status=RFM69_STATUS_SEND_ACK;
 
 				}
 			} else {
@@ -623,6 +626,12 @@ void RFM69_loop(RFM69_t *module) {
 	} else if (module->status==RFM69_STATUS_RECEIVE_ACK) {
 		if (module->timer>1000) {
 			module->status=RFM69_STATUS_ACK_FAILED;
+		}
+	} else if (module->status==RFM69_STATUS_DELAY_SEND_ACK) {
+		if (module->timer>10) {
+			RFM69_send_packet(module, module->sender_addr, NULL, 0, false, true, true, true);
+			module->timer=0;
+			module->status=RFM69_STATUS_SEND_ACK;
 		}
 	}
 }

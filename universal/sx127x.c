@@ -150,10 +150,10 @@ int16_t SX127X_getPacketRssiDbm(SX127X_Handle *module) {
 		return val-164;
 	}
 }
-// returns dB value
+// returns dB value; 1bit=0.25dB
 int8_t SX127X_getPacketSnrDb(SX127X_Handle *module) {
 	uint8_t val=SX127X_SPIRead(module, SX127X_LORA_REG_PKT_SNR_VALUE);
-	return ((int8_t)val)/4;
+	return ((int8_t)val);
 }
 
 void SX127X_setFrequency(SX127X_Handle *module, uint32_t frequency) {

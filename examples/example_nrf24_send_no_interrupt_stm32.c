@@ -21,7 +21,7 @@ uint8_t nrf24_spi_transfer(uint8_t data) {
 	return recv;
 }
 
-void nrf24_hw_delay_us(uint16_t us) {
+void delay_us(uint16_t us) {
 	__HAL_TIM_SET_COUNTER(&htim3, 0);  // set the counter value a 0; htim timer period set to 1us
 	while (__HAL_TIM_GET_COUNTER(&htim3) < us);  // wait for the counter to reach the us input in the parameter
 }

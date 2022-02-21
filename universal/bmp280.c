@@ -90,11 +90,11 @@ void BMP280_load_compensation_values(BMP280_Handle *handle) {
 	handle->dig_P4=(data[0] | (data[1] << 8)); // signed
 	handle->dig_P5=(data[2] | (data[3] << 8)); // signed
 	handle->dig_P6=(data[4] | (data[5] << 8)); // signed
-	handle->read_reg(handle, BMP280_REG_DIG_P7, data, 4);
+	handle->read_reg(handle, BMP280_REG_DIG_P7, data, 6);
 	handle->dig_P7=(data[0] | (data[1] << 8)); // signed
 	handle->dig_P8=(data[2] | (data[3] << 8)); // signed
-//	handle->dig_P9=(data[4] | (data[5] << 8)); // signed
-	handle->dig_P9=6000;
+	handle->dig_P9=(data[4] | (data[5] << 8)); // signed
+//	handle->dig_P9=6000;
 }
 
 //void BMP280_load_compensation_values(BMP280_Handle *handle) {

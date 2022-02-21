@@ -16,10 +16,12 @@
  * @param	delay_ms	The function that makes delay in milliseconds. Hardware dependent.
  * @retval	status		0=device found
  */
-uint8_t AHT10_init(AHT10_Handle *obj, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms) {
+uint8_t AHT10_init(AHT10_Handle *obj, uint8_t addrpin, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms) {
 	obj->write_reg=write_reg;
 	obj->read_reg=read_reg;
 	obj->delay_ms=delay_ms;
+
+	obj->addr=addrpin==0?AHT10_I2C_ADDRESS_LOW:AHT10_I2C_ADDRESS_HIGH;
 
 	// after power-up: it takes 20 milliseconds at most to enter idle state
 	obj->delay_ms(20);
