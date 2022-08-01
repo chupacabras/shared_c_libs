@@ -28,7 +28,9 @@
 #define MSG_VALUE_TEMPERATURE_PCB2				2
 #define MSG_VALUE_TEMPERATURE_AMBIENT1			4
 #define MSG_VALUE_TEMPERATURE_AMBIENT2			5
-#define MSG_VALUE_HUMIDITY						7
+#define MSG_VALUE_AIR_HUMIDITY					7
+#define MSG_VALUE_AIR_PRESSURE					8
+#define MSG_VALUE_AIR_HUMIDITY2					9
 #define MSG_VALUE_WATER_LEVEL					10
 #define MSG_VALUE_DC_VOLTAGE_BATTERY			20
 #define MSG_VALUE_DC_VOLTAGE_INPUT				21
@@ -56,7 +58,9 @@
 #define STR_TEMPERATURE_PCB2		"temperature_pcb2"
 #define STR_TEMPERATURE_AMBIENT		"temperature_ambient"
 #define STR_TEMPERATURE_AMBIENT2	"temperature_ambient2"
-#define STR_HUMIDITY				"humidity"
+#define STR_AIR_HUMIDITY			"air_humidity"
+#define STR_AIR_HUMIDITY2			"air_humidity2"
+#define STR_AIR_PRESSURE			"air_pressure"
 #define STR_WATER_LEVEL				"water_level"
 #define STR_BATTERY_VOLTAGE			"battery_voltage"
 #define STR_DC_POWER_PRESENT		"dc_power_present"
@@ -88,6 +92,7 @@ void SensorMessage_finish(SensorMessage *handle);
 void SensorMessage_clear_data(SensorMessage *handle);
 void SensorMessage_add_1byte(SensorMessage *handle, uint8_t message_type, uint8_t data);
 void SensorMessage_add_2byte(SensorMessage *handle, uint8_t message_type, uint16_t data);
+void SensorMessage_add_3byte(SensorMessage *handle, uint8_t message_type, uint32_t data);
 void SensorMessage_add_4byte(SensorMessage *handle, uint8_t message_type, uint8_t *data);
 
 #endif

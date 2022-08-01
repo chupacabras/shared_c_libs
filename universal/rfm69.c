@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    rfm69.c
   * @author  Juraj Lonc (juraj.lonc@gmail.com)
-  * @brief   RFM69 (RFM69H) radio driver.
+  * @brief   RFM69 (RFM69H, SX1231) radio driver.
   ******************************************************************************
   */
 
@@ -332,7 +332,9 @@ void RFM69_set_frequency(RFM69_t *module, uint64_t frequency) {
 //	RFM69_burst_write(module, RFM69_RegFrMsb, (uint8_t*) freq_reg, 3); //setting  frequency parameter
 //    
     
-    frequency /= RFM69_FSTEP;
+//    frequency /= RFM69_FSTEP;
+
+    frequency = (frequency <<8) / 15625;
 
   // set new frequency
   RFM69_register_write(module, RFM69_RegFrMsb, frequency >> 16);
