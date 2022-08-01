@@ -67,7 +67,7 @@ void SensorMessage_finish(SensorMessage *handle) {
 		handle->buffer[handle->pos++]=crc;
 	}
 	if (handle->version==MESSAGE_VERSION_4) {
-		if (handle->buffer[7] && MSG_OPTION_CRC16) {
+		if (handle->buffer[7] & MSG_OPTION_CRC16) {
 			// add CRC
 			uint16_t crc=crc16(handle->buffer, handle->pos);
 			handle->buffer[handle->pos++]=(crc >> 8) & 0xff;
@@ -85,6 +85,13 @@ void SensorMessage_add_1byte(SensorMessage *handle, uint8_t message_type, uint8_
 
 void SensorMessage_add_2byte(SensorMessage *handle, uint8_t message_type, uint16_t data) {
     handle->buffer[handle->pos++]=message_type;
+    handle->buffer[handle->pos++]=(data >> 8) & 0xff;
+    handle->buffer[handle->pos++]=(data) & 0xff;
+}
+
+void SensorMessage_add_3byte(SensorMessage *handle, uint8_t message_type, uint32_t data) {
+    handle->buffer[handle->pos++]=message_type;
+    handle->buffer[handle->pos++]=(data >> 16) & 0xff;
     handle->buffer[handle->pos++]=(data >> 8) & 0xff;
     handle->buffer[handle->pos++]=(data) & 0xff;
 }

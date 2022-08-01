@@ -3,11 +3,13 @@
 // input: voltage in mV (4100 = 4.100 V)
 // output: promile (890 = 89.0%)
 uint16_t convertBatteryLevel(uint16_t voltage) {
-    if (voltage>4190) {
+//	if (voltage>4190) {
+	if (voltage>4150) {
         return 1000;
     } else if (voltage>3950) {
         // 100-80%
-        return -2360+(4*voltage)/5;
+//        return -2360+(4*voltage)/5;
+        return -3150+voltage;
     } else if (voltage>3810) {
         // 80-60%
         return -4843+(10*voltage)/7;

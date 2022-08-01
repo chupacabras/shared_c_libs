@@ -40,7 +40,7 @@ size_t cbuffer_get_free_size(CircularBuffer *cbuf) {
 	}
 }
 
-int cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len) {
+int8_t cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 	if (cbuffer_get_free_size(cbuf)< len) {
 		return -1;
 	}
@@ -57,7 +57,7 @@ int cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 	return 0;
 }
 
-int cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len) {
+int8_t cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 	if (cbuffer_get_size(cbuf)< len) {
 		return -1;
 	}
@@ -74,7 +74,21 @@ int cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 	return 0;
 }
 
-int cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len) {
+void cbuffer_remove(CircularBuffer *cbuf, size_t len) {
+	if (cbuffer_get_size(cbuf)< len) {
+		cbuffer_reset(cbuf);
+		return;
+	}
+	size_t l=cbuf->size - cbuf->tail;
+	if (l>=len) {
+		cbuf->tail+=len;
+		if (cbuf->tail >=cbuf->size) cbuf->tail-=cbuf->size;
+	} else {
+		cbuf->tail=len-l;
+	}
+}
+
+int8_t cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len) {
 	if (cbuffer_get_free_size(cbuf)< len+1) {
 		return -1;
 	}

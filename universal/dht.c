@@ -66,7 +66,7 @@ void DHT_interrupt_handler_io(DHT_Handle *dht) {
 		uint8_t t=dht->read_timer();
 		dht->reset_timer();
 		if (t<60 || t>200) {
-			dht->stage=DHT_STAGE_ERROR+20;
+			dht->stage=DHT_STAGE_ERROR;
 		} else {
 			if (t>90) {
 				// value = 1
@@ -87,7 +87,7 @@ void DHT_interrupt_handler_io(DHT_Handle *dht) {
 		uint8_t t=dht->read_timer();
 		dht->reset_timer();
 		if (t<130 || t>200) {
-			dht->stage=DHT_STAGE_ERROR+10;
+			dht->stage=DHT_STAGE_ERROR;
 		} else {
 			dht->stage=DHT_STAGE_DATA;
 		}

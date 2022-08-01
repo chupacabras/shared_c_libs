@@ -126,6 +126,19 @@ typedef struct {
 
 } BMP280_Handle;
 
+// 0xF3; status register
+typedef struct tag_BMP280_Register_Status {
+	union {
+		struct {
+			uint8_t DATA;
+		};
+		struct {
+			uint8_t im_update :1;	// bit 0; Automatically set to ‘1’ whenever a conversion is running and back to ‘0’ when the results have been transferred to the data registers.
+			uint8_t :2;				// bits 1-2;
+			uint8_t measuring :1;	// bits 3; Controls oversampling of temperature data. See chapter 3.3.2 for details.
+		};
+	};
+} BMP280_Register_Status;
 
 // 0xF4; control measurement register
 typedef struct tag_BMP280_Register_ControlMeas {
@@ -186,7 +199,7 @@ void BMP280_reset(BMP280_Handle *handle);
  * @param	handle*		pointer to BMP280_Handle
  * @retval	retval		value of status register
  */
-uint8_t BMP280_get_status(BMP280_Handle *handle);
+BMP280_Register_Status BMP280_get_status(BMP280_Handle *handle);
 
 /**
  * @brief  Load compensation/calibration values and store it into the handle.

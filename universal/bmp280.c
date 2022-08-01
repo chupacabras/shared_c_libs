@@ -52,24 +52,54 @@ void BMP280_read_raw_pressure(BMP280_Handle *handle) {
 
 	handle->raw_pressure=(((int32_t)data[0])<<12) | (((int32_t)data[1])<<4) | ((data[2] >> 4) & 0x0f);
 }
-uint32_t BMP280_calc_pressure(BMP280_Handle *handle) {
-	int64_t var1, var2, p;
+//uint32_t BMP280_calc_pressure0(BMP280_Handle *handle) {
+//	int64_t var1, var2, p;
+//
+//	var1 = ((int64_t)handle->t_fine) - 128000;
+//	var2 = var1 * var1 * ((int64_t)handle->dig_P6);
+//	var2 = var2 + ((var1* ((int64_t)(handle->dig_P5)))<<17);
+//	var2 = var2 + (((int64_t)handle->dig_P4)<<35);
+//	var1 = ((var1 * var1 * ((int64_t)handle->dig_P3))>>8) + ((var1 * ((int64_t)handle->dig_P2))<<12);
+//	var1 = (((((int64_t)1)<<47)+var1))*(handle->dig_P1)>>33;
+//	if (var1 == 0) {
+//		return (uint32_t)0; // avoid exception caused by division by zero
+//	}
+//	p = 1048576-(handle->raw_pressure);
+//	p = (((p<<31)-var2)*3125)/var1;
+//	var1 = (((int64_t)handle->dig_P9) * (p>>13) * (p>>13)) >> 25;
+//	var2 = (((int64_t)(handle->dig_P8)) * p) >> 19;
+//	p = ((p + var1 + var2) >> 8) + (((int64_t)handle->dig_P7)<<4);
+//	p=p>>8;
+//	return (uint64_t)p;
+//}
 
-	var1 = ((int64_t)handle->t_fine) - 128000;
-	var2 = var1 * var1 * ((int64_t)handle->dig_P6);
-	var2 = var2 + ((var1* ((int64_t)(handle->dig_P5)))<<17);
-	var2 = var2 + (((int64_t)handle->dig_P4)<<35);
-	var1 = ((var1 * var1 * ((int64_t)handle->dig_P3))>>8) + ((var1 * ((int64_t)handle->dig_P2))<<12);
-	var1 = (((((int64_t)1)<<47)+var1))*(handle->dig_P1)>>33;
-	if (var1 == 0) {
-		return (uint32_t)0; // avoid exception caused by division by zero
+
+uint32_t BMP280_calc_pressure(BMP280_Handle *handle) {
+	int32_t var1, var2;
+	uint32_t p;
+	var1 = (((int32_t)handle->t_fine)>>1) - (int32_t)64000;
+	var2 = (((var1>>2) * (var1>>2)) >> 11 ) * ((int32_t)handle->dig_P6);
+	var2 = var2 + ((var1*((int32_t)handle->dig_P5))<<1);
+	var2 = (var2>>2)+(((int32_t)handle->dig_P4)<<16);
+	var1 = (((handle->dig_P3 * (((var1>>2) * (var1>>2)) >> 13 )) >> 3) + ((((int32_t)handle->dig_P2) * var1)>>1))>>18;
+	var1 =((((32768+var1))*((int32_t)handle->dig_P1))>>15);
+	if (var1 == 0)
+	{
+		return 0; // avoid exception caused by division by zero
 	}
-	p = 1048576-(handle->raw_pressure);
-	p = (((p<<31)-var2)*3125)/var1;
-	var1 = (((int64_t)handle->dig_P9) * (p>>13) * (p>>13)) >> 25;
-	var2 = (((int64_t)(handle->dig_P8)) * p) >> 19;
-	p = ((p + var1 + var2) >> 8) + (((int64_t)handle->dig_P7)<<4);
-	return (uint64_t)p;
+	p = (((uint32_t)(((int32_t)1048576)-handle->raw_pressure)-(var2>>12)))*3125;
+	if (p < 0x80000000)
+	{
+		p = (p << 1) / ((uint32_t)var1);
+	}
+	else
+	{
+		p = (p / (uint32_t)var1) * 2;
+	}
+	var1 = (((int32_t)handle->dig_P9) * ((int32_t)(((p>>3) * (p>>3))>>13)))>>12;
+	var2 = (((int32_t)(p>>2)) * ((int32_t)handle->dig_P8))>>13;
+	p = (uint32_t)((int32_t)p + ((var1 + var2 + handle->dig_P7) >> 4));
+	return p;
 }
 
 void BMP280_load_compensation_values(BMP280_Handle *handle) {
@@ -123,9 +153,9 @@ void BMP280_load_compensation_values(BMP280_Handle *handle) {
 //
 //}
 
-uint8_t BMP280_get_status(BMP280_Handle *handle) {
-	uint8_t status;
-	handle->read_reg(handle, BMP280_REG_STATUS, &status, 1);
+BMP280_Register_Status BMP280_get_status(BMP280_Handle *handle) {
+	BMP280_Register_Status status;
+	handle->read_reg(handle, BMP280_REG_STATUS, &status.DATA, 1);
 	return status;
 }
 void BMP280_reset(BMP280_Handle *handle) {

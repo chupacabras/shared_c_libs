@@ -59,12 +59,50 @@ typedef struct {
 } DHT_Handle;
 
 
+
+/**
+ * @brief  DHT initialization.
+ * @param	handle*		pointer to DHT_Handle
+ * @param	pin_output	The function that configures pin to output mode. Hardware dependent.
+ * @param	pin_input	The function that configures pin to input mode. Hardware dependent.
+ * @param	pin_low		The function that sets pin to low. Hardware dependent.
+ * @param	pin_high	The function that sets pin to high. Hardware dependent.
+ * @param	pin_read	The function that reads pin value. Hardware dependent.
+ * @param	reset_timer	The function that resets timer value. Hardware dependent. 1us timer.
+ * @param	read_timer	The function that reads timer value. Hardware dependent.
+ */
 void DHT_init(DHT_Handle *dht, dht_device_pin_output pin_output, dht_device_pin_input pin_input, dht_device_pin_low pin_low, dht_device_pin_high pin_high, dht_device_pin_read pin_read, dht_device_reset_timer reset_timer, dht_device_read_timer read_timer);
+
+/**
+ * @brief  DHT start read. Blocking function.
+ * @param	handle*		pointer to DHT_Handle
+ */
 void DHT_start_reading(DHT_Handle *dht);
-bool DHT_decode_value(DHT_Handle *dht, float *humidity, float *temperature);
-// humidity in per mille (630 = 63.0%), temperature in tenths of degree (239 = 23.9C)
+
+/**
+ * @brief  Get received values of temperature and humidity from DHT.
+ * 		   Humidity in tenths of percent (630 = 63.0%), temperature in tenths of degree (239 = 23.9C)
+ * @param	handle*			pointer to DHT_Handle
+ * @param	humidity*		pointer to humidity variable.
+ * @param	temperature*	pointer to temperature variable.
+ * @retval	retval			true = values are present
+ */
 bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, uint16_t *temperature);
 
+/**
+ * @brief  Get received values of temperature and humidity from DHT in float format.
+ * @param	handle*			pointer to DHT_Handle
+ * @param	humidity*		pointer to humidity variable.
+ * @param	temperature*	pointer to temperature variable.
+ * @retval	retval			true = values are present
+ */
+bool DHT_decode_value(DHT_Handle *dht, float *humidity, float *temperature);
+
+/**
+ * @brief  DHT interrupt handler. To be called in IO change (falling edge) interrupt
+ * @param	handle*		pointer to DHT_Handle
+ */
 void DHT_interrupt_handler_io(DHT_Handle *dht);
+
 
 #endif /* INC_DHT_H_ */

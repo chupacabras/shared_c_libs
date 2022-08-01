@@ -29,18 +29,19 @@ bool cbuffer_is_empty(CircularBuffer *cbuf);
 bool cbuffer_is_full(CircularBuffer *cbuf);
 size_t cbuffer_get_size(CircularBuffer *cbuf);
 size_t cbuffer_get_free_size(CircularBuffer *cbuf);
+void cbuffer_remove(CircularBuffer *cbuf, size_t len);
 
 // 0 = ok
 // -1 = error
-int cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len);
+int8_t cbuffer_put(CircularBuffer *cbuf, uint8_t *data, size_t len);
 
 // 0 = ok
 // -1 = error
-int cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len);
+int8_t cbuffer_get(CircularBuffer *cbuf, uint8_t *data, size_t len);
 
 // 0 = ok
 // -1 = error
-int cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len);
+int8_t cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len);
 
 // return size of object
 size_t cbuffer_get_object(CircularBuffer *cbuf, uint8_t *data);

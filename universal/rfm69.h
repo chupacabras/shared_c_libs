@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    rfm69.h
   * @author  Juraj Lonc (juraj.lonc@gmail.com)
-  * @brief   Header file of RFM69 (RFM69H) driver.
+  * @brief   Header file of RFM69 (RFM69H, SX1231) driver.
   ******************************************************************************
   */
 
@@ -15,7 +15,7 @@
 #define RFM69_H_
 
 #define RFM69_XTAL			   32000000
-#define RFM69_FSTEP			   61.03515625
+//#define RFM69_FSTEP			   61.03515625	// = 15625 / 256
 
 #define RFM69_FIFO_LENGTH		   66
 #define RFM69_MAX_PACKET		   61	 // to take advantage of the built in AES/CRC we want to limit the frame size to the internal FIFO size (66 bytes - 3 bytes overhead - 2 bytes crc)
