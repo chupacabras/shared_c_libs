@@ -127,7 +127,7 @@ uint8_t AT24CXX_read_byte(AT24CXX_Handle *obj, uint16_t m_address) {
 
 	AT24CXX_prepare_address(obj, m_address);
 	obj->write_reg(obj, obj->prepared_address, obj->prepared_m_address, obj->m_address_length, 0, 0);
-	obj->read_reg(obj, obj->prepared_address, &value, 1);
+	obj->read_reg(obj, obj->prepared_address | 0x01, &value, 1);
 
 	return value;
 }
@@ -136,7 +136,7 @@ uint8_t AT24CXX_read_byte(AT24CXX_Handle *obj, uint16_t m_address) {
 uint8_t AT24CXX_read_next_byte(AT24CXX_Handle *obj) {
 	uint8_t value = 0;
 
-	obj->read_reg(obj, obj->prepared_address, &value, 1);
+	obj->read_reg(obj, obj->prepared_address | 0x01, &value, 1);
 
 	return value;
 }
@@ -148,7 +148,7 @@ uint16_t AT24CXX_read_data(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *dat
 
 	AT24CXX_prepare_address(obj, m_address);
 	obj->write_reg(obj, obj->prepared_address, obj->prepared_m_address, obj->m_address_length, 0, 0);
-	obj->read_reg(obj, obj->prepared_address, data, length);
+	obj->read_reg(obj, obj->prepared_address | 0x01, data, length);
 
 	return length;
 }

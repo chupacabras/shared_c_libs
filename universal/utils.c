@@ -171,7 +171,7 @@ uint8_t long2string(uint8_t *buffer, int32_t i) {
 /**
  * @brief  Convert double to string as decimal number. Fixed string length.
  * @param  buffer: Buffer where to build the string.
- * @param  f: number to convert
+ * @param  d: number to convert
  * @param  decimals: number of places after decimal point
  * @param  length: number of all characters including minus sign. Filled with spaces at beginning.
  */
@@ -191,6 +191,48 @@ void double2string_fixed(uint8_t *buffer, double d, uint8_t decimals, uint8_t le
 	}
 
 
+	buffer[c--] = 0;
+	if (decimals > 0) {
+		for (q = 0; q < decimals; q++) {
+			buffer[c--] = (n % 10) + '0';
+			n = n / 10;
+		}
+		buffer[c--] = '.';
+	}
+
+	for (q = 0; q < length - decimals; q++) {
+		buffer[c--] = (n % 10) + '0';
+		n = n / 10;
+
+		if (n < 1) break;
+	}
+
+	if (negate && c >= 0) {
+		buffer[c--] = '-';
+	}
+	while (c >= 0) {
+		buffer[c--] = ' ';
+	}
+
+}
+
+/**
+ * @brief  Convert long to string as real decimal number. Fixed string length.
+ * @param  buffer: Buffer where to build the string.
+ * @param  n: number to convert
+ * @param  decimals: number of places after decimal point
+ * @param  length: number of all characters including minus sign. Filled with spaces at beginning.
+ */
+void long2string_fixed(uint8_t *buffer, int32_t n, uint8_t decimals, uint8_t length) {
+	uint8_t q;
+	int c = length;
+	bool negate = false;
+
+	if (n < 0) {
+		negate = true;
+		n = -n;
+	}
+    
 	buffer[c--] = 0;
 	if (decimals > 0) {
 		for (q = 0; q < decimals; q++) {
@@ -260,7 +302,7 @@ void double2string(uint8_t *buffer, double d, uint8_t decimals) {
 	if (negate && c >= 0) {
 		buffer[c--] = '-';
 	}
-	memcpy(buffer, &buffer[c+1], MAX_STRING_LENGTH-c);
+	memcpy(buffer, &buffer[c+1], (size_t)(MAX_STRING_LENGTH-c));
 
 }
 

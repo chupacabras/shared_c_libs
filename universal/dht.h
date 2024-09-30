@@ -87,16 +87,7 @@ void DHT_start_reading(DHT_Handle *dht);
  * @param	temperature*	pointer to temperature variable.
  * @retval	retval			true = values are present
  */
-bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, uint16_t *temperature);
-
-/**
- * @brief  Get received values of temperature and humidity from DHT in float format.
- * @param	handle*			pointer to DHT_Handle
- * @param	humidity*		pointer to humidity variable.
- * @param	temperature*	pointer to temperature variable.
- * @retval	retval			true = values are present
- */
-bool DHT_decode_value(DHT_Handle *dht, float *humidity, float *temperature);
+bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, int16_t *temperature);
 
 /**
  * @brief  DHT interrupt handler. To be called in IO change (falling edge) interrupt

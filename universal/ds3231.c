@@ -13,100 +13,100 @@ static uint8_t temp_arr[7];
 
 /**
  * @brief  Initialize DS3231 RTC and DS3231 object/handler.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  write_cmd:		The function that writes data to DS3231. Hardware dependent.
  * @param  read_cmd:		The function that reads data from DS3231. Hardware dependent.
  */
-void DS3231_init(DS3231_Object * obj, device_write_ptr write_cmd, device_read_ptr read_cmd) {
+void DS3231_init(DS3231_Handle * obj, device_write_ptr write_cmd, device_read_ptr read_cmd) {
 	obj->write_cmd=write_cmd;
 	obj->read_cmd=read_cmd;
 }
 
 ///**
 // * @brief  Read seconds register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_seconds(DS3231_Object *obj, RTC_time * time) {
+//void DS3231_get_seconds(DS3231_Handle *obj, RTC_time * time) {
 //	obj->read_cmd(obj, DS3231_REG_SECOND, &temp, 1);
 //	rtc_convert_seconds(time, temp);
 //}
 //
 ///**
 // * @brief  Read minutes register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_minutes(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_minutes(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_MINUTE, &temp, 1);
 //	rtc_convert_minutes(time, temp);
 //}
 //
 ///**
 // * @brief  Read hours register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_hours(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_hours(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_HOUR, &temp, 1);
 //	rtc_convert_hours(time, temp);
 //}
 //
 ///**
 // * @brief  Read day of week register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_day_of_week(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_day_of_week(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_DAY, &temp, 1);
 //	rtc_convert_day_of_week(time, temp);
 //}
 //
 ///**
 // * @brief  Read day of month (date) register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_date(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_date(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_DATE, &temp, 1);
 //	rtc_convert_date(time, temp);
 //}
 //
 ///**
 // * @brief  Read month register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_month(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_month(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_MONTH, &temp, 1);
 //	rtc_convert_month(time, temp);
 //}
 //
 ///**
 // * @brief  Read year register and update value in RTC_time object.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  time:      Pointer to a RTC_time structure that contains time values.
 // */
-//void DS3231_get_year(DS3231_Object *obj, RTC_time *time) {
+//void DS3231_get_year(DS3231_Handle *obj, RTC_time *time) {
 //	obj->read_cmd(obj, DS3231_REG_YEAR, &temp, 1);
 //	rtc_convert_year(time, temp);
 //}
 
 /**
  * @brief  Read all registers and update values in RTC_time object.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  time:      Pointer to a RTC_time structure that contains time values.
  */
-void DS3231_read_time(DS3231_Object *obj, RTC_time * time) {
+void DS3231_read_time(DS3231_Handle *obj, RTC_time * time) {
 	obj->read_cmd(obj, DS3231_REG_SECOND, temp_arr, 7);
 	rtc_convert_seconds(time, temp_arr[0]);
 	rtc_convert_minutes(time, temp_arr[1]);
@@ -119,34 +119,34 @@ void DS3231_read_time(DS3231_Object *obj, RTC_time * time) {
 
 ///**
 // * @brief  Write seconds to register in DS3231 register.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      Seconds.
 // */
-//void DS3231_set_seconds(DS3231_Object *obj, uint8_t val) {
+//void DS3231_set_seconds(DS3231_Handle *obj, uint8_t val) {
 //	temp=num_to_bcd(val & 0x7f);
 //	obj->write_cmd(obj, DS3231_REG_SECOND, &temp, 1);
 //}
 //
 ///**
 // * @brief  Write minutes to register in DS3231 register.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      Minutes.
 // */
-//void DS3231_set_minutes(DS3231_Object *obj, uint8_t val) {
+//void DS3231_set_minutes(DS3231_Handle *obj, uint8_t val) {
 //	temp=num_to_bcd(val & 0x7f);
 //	obj->write_cmd(obj, DS3231_REG_MINUTE, &temp, 1);
 //}
 //
 ///**
 // * @brief  Write hours to register in DS3231 register.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      	Hours.
 // * @param  hour_format: Hours format (AM, PM, H24).
 // */
-//void DS3231_set_hours(DS3231_Object *obj, uint8_t val, RTCHoursFormat hour_format) {
+//void DS3231_set_hours(DS3231_Handle *obj, uint8_t val, RTCHoursFormat hour_format) {
 //	temp=rtc_encode_hours(val, hour_format);
 //
 //	obj->write_cmd(obj, DS3231_REG_HOUR, &temp, 1);
@@ -154,55 +154,55 @@ void DS3231_read_time(DS3231_Object *obj, RTC_time * time) {
 //
 /**
  * @brief  Write day of week to register in DS3231 register.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  val:      Day of week. 1=sunday, 2=monday, etc.
  */
-void DS3231_set_day_of_week(DS3231_Object *obj, RTCDay val) {
+void DS3231_set_day_of_week(DS3231_Handle *obj, RTCDay val) {
 	temp=val & 0x07;
 	obj->write_cmd(obj, DS3231_REG_DAY, &temp, 1);
 }
 //
 ///**
 // * @brief  Write day of month (date) to register in DS3231 register.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      Day of month.
 // */
-//void DS3231_set_date(DS3231_Object *obj, uint8_t val) {
+//void DS3231_set_date(DS3231_Handle *obj, uint8_t val) {
 //	temp=num_to_bcd(val & 0x3f);
 //	obj->write_cmd(obj, DS3231_REG_DATE, &temp, 1);
 //}
 //
 ///**
 // * @brief  Write month to register in DS3231 register.
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      Month.
 // */
-//void DS3231_set_month(DS3231_Object *obj, uint8_t val) {
+//void DS3231_set_month(DS3231_Handle *obj, uint8_t val) {
 //	temp=num_to_bcd(val & 0x1f);
 //	obj->write_cmd(obj, DS3231_REG_MONTH, &temp, 1);
 //}
 //
 ///**
 // * @brief  Write year to register in DS3231 register (year 2000 to 2100).
-// * @param  obj:       Pointer to a DS3231_Object structure that contains
+// * @param  obj:       Pointer to a DS3231_Handle structure that contains
 // *                    the information for the display.
 // * @param  val:      Year. 00-99 (00=2000, 99=2099)
 // */
-//void DS3231_set_year(DS3231_Object *obj, uint8_t val) {
+//void DS3231_set_year(DS3231_Handle *obj, uint8_t val) {
 //	temp=num_to_bcd(val);
 //	obj->write_cmd(obj, DS3231_REG_YEAR, &temp, 1);
 //}
 
 /**
  * @brief  Read integer temperature from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @retval  Temperature in hundredths of deg.C. (2500 == 25.00 deg.C)
  */
-int16_t DS3231_get_temperature_int(DS3231_Object *obj) {
+int16_t DS3231_get_temperature_int(DS3231_Handle *obj) {
 	// arr[0]=MSB, arr[1]=LSB
 	obj->read_cmd(obj, DS3231_REG_TEMP_MSB, temp_arr, 2);
 
@@ -215,21 +215,21 @@ int16_t DS3231_get_temperature_int(DS3231_Object *obj) {
 
 /**
  * @brief  Read float temperature from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @retval  Temperature in deg.C.
  */
-float DS3231_get_temperature(DS3231_Object *obj) {
+float DS3231_get_temperature(DS3231_Handle *obj) {
 	return DS3231_get_temperature_int(obj)*0.01;
 }
 
 /**
  * @brief  Write all RTC registers from RTC_time object.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  time:      Pointer to a RTC_time structure that contains time values.
  */
-void DS3231_write_time(DS3231_Object *obj, RTC_time * time) {
+void DS3231_write_time(DS3231_Handle *obj, RTC_time * time) {
 	temp_arr[0]=num_to_bcd(time->second & 0x7f);
 	temp_arr[1]=num_to_bcd(time->minute & 0x7f);
 	temp_arr[2]=rtc_encode_hours(time->hour, time->hour_format);
@@ -243,13 +243,13 @@ void DS3231_write_time(DS3231_Object *obj, RTC_time * time) {
 
 /**
  * @brief  Set time.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  hours:     Hours value in 24hr format.
  * @param  minutes:   Minutes value.
  * @param  seconds:   Seconds value.
  */
-void DS3231_set_time_values(DS3231_Object *obj, uint8_t hours, uint8_t minutes, uint8_t seconds) {
+void DS3231_set_time_values(DS3231_Handle *obj, uint8_t hours, uint8_t minutes, uint8_t seconds) {
 	temp_arr[0] = num_to_bcd(seconds & 0x7f);
 	temp_arr[1] = num_to_bcd(minutes & 0x7f);
 	temp_arr[2] = rtc_encode_hours(hours, RTC_H24);
@@ -259,13 +259,13 @@ void DS3231_set_time_values(DS3231_Object *obj, uint8_t hours, uint8_t minutes, 
 
 /**
  * @brief  Set date.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  year:     	Year value (00-99).
  * @param  month:   	Month value.
  * @param  day_of_month: Day of month value.
  */
-void DS3231_set_date_values(DS3231_Object *obj, uint8_t year, uint8_t month, uint8_t day_of_month) {
+void DS3231_set_date_values(DS3231_Handle *obj, uint8_t year, uint8_t month, uint8_t day_of_month) {
 	temp_arr[0] = num_to_bcd(day_of_month & 0x3f);
 	temp_arr[1] = num_to_bcd(month & 0x1f);
 	temp_arr[2] = num_to_bcd(year);
@@ -275,27 +275,27 @@ void DS3231_set_date_values(DS3231_Object *obj, uint8_t year, uint8_t month, uin
 
 /**
  * @brief  Read alarm1 registers from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  alarm1:    Pointer to DS3231_Alarm1 object
  */
-void DS3231_read_alarm1(DS3231_Object *obj, DS3231_Alarm1 * alarm1) {
+void DS3231_read_alarm1(DS3231_Handle *obj, DS3231_Alarm1 * alarm1) {
 	obj->read_cmd(obj, DS3231_REG_ALARM1_SEC, alarm1->DATA, 4);
 }
 
 /**
  * @brief  Write alarm1 registers to DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  alarm1:    Pointer to DS3231_Alarm1 object
  */
-void DS3231_write_alarm1(DS3231_Object *obj, DS3231_Alarm1 * alarm1) {
+void DS3231_write_alarm1(DS3231_Handle *obj, DS3231_Alarm1 * alarm1) {
 	obj->write_cmd(obj, DS3231_REG_ALARM1_SEC, alarm1->DATA, 4);
 }
 
 /**
  * @brief  Set and enable alarm1 in DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  date_day:  Day (or date) value
  * @param  hours:     Hours value, in 24hr format
@@ -303,7 +303,7 @@ void DS3231_write_alarm1(DS3231_Object *obj, DS3231_Alarm1 * alarm1) {
  * @param  seconds:   Seconds value
  * @param  rate:      Rate of alarm1
  */
-void DS3231_set_alarm1(DS3231_Object *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, uint8_t seconds, DS3231_Alarm1Rate rate) {
+void DS3231_set_alarm1(DS3231_Handle *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, uint8_t seconds, DS3231_Alarm1Rate rate) {
 	DS3231_Alarm1 * alarm1;
 	alarm1=(DS3231_Alarm1*)temp_arr;
 
@@ -325,10 +325,10 @@ void DS3231_set_alarm1(DS3231_Object *obj, uint8_t date_day, uint8_t hours, uint
 
 /**
  * @brief  Disable alarm1 in DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  */
-void DS3231_disable_alarm1(DS3231_Object *obj) {
+void DS3231_disable_alarm1(DS3231_Handle *obj) {
 	DS3231_read_control(obj, (DS3231_Control*)&temp);
 	((DS3231_Control*)&temp)->A1IE=0;
 	DS3231_write_control(obj, (DS3231_Control*)&temp);
@@ -336,14 +336,14 @@ void DS3231_disable_alarm1(DS3231_Object *obj) {
 
 /**
  * @brief  Set and enable alarm2 in DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  date_day:  Day (or date) value
  * @param  hours:     Hours value, in 24hr format
  * @param  minutes:   Minutes value
  * @param  rate:      Rate of alarm2
  */
-void DS3231_set_alarm2(DS3231_Object *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, DS3231_Alarm2Rate rate) {
+void DS3231_set_alarm2(DS3231_Handle *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, DS3231_Alarm2Rate rate) {
 	DS3231_Alarm2 * alarm2;
 	alarm2=(DS3231_Alarm2*)temp_arr;
 
@@ -363,10 +363,10 @@ void DS3231_set_alarm2(DS3231_Object *obj, uint8_t date_day, uint8_t hours, uint
 
 /**
  * @brief  Disable alarm2 in DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  */
-void DS3231_disable_alarm2(DS3231_Object *obj) {
+void DS3231_disable_alarm2(DS3231_Handle *obj) {
 	DS3231_read_control(obj, (DS3231_Control*)&temp);
 	((DS3231_Control*)&temp)->A2IE=0;
 	DS3231_write_control(obj, (DS3231_Control*)&temp);
@@ -374,71 +374,71 @@ void DS3231_disable_alarm2(DS3231_Object *obj) {
 
 /**
  * @brief  Read alarm2 registers from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  alarm2:    Pointer to DS3231_Alarm2 object
  */
-void DS3231_read_alarm2(DS3231_Object *obj, DS3231_Alarm2 * alarm2) {
+void DS3231_read_alarm2(DS3231_Handle *obj, DS3231_Alarm2 * alarm2) {
 	obj->read_cmd(obj, DS3231_REG_ALARM2_MIN, alarm2->DATA, 3);
 }
 
 /**
  * @brief  Write alarm2 registers to DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  alarm2:    Pointer to DS3231_Alarm2 object
  */
-void DS3231_write_alarm2(DS3231_Object *obj, DS3231_Alarm2 * alarm2) {
+void DS3231_write_alarm2(DS3231_Handle *obj, DS3231_Alarm2 * alarm2) {
 	obj->write_cmd(obj, DS3231_REG_ALARM2_MIN, alarm2->DATA, 3);
 }
 
 /**
  * @brief  Read Control register from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  control:    Pointer to DS3231_Control object
  */
-void DS3231_read_control(DS3231_Object *obj, DS3231_Control * control) {
-	obj->read_cmd(obj, DS3231_REG_CONTROL, &control->BYTE, 1);
+void DS3231_read_control(DS3231_Handle *obj, DS3231_Control * ctrl) {
+	obj->read_cmd(obj, DS3231_REG_CONTROL, &(ctrl->BYTE), 1);
 }
 
 /**
  * @brief  Write Control register to DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  control:   Pointer to DS3231_Control object
  */
-void DS3231_write_control(DS3231_Object *obj, DS3231_Control * control) {
-	obj->write_cmd(obj, DS3231_REG_CONTROL, &control->BYTE, 1);
+void DS3231_write_control(DS3231_Handle *obj, DS3231_Control * ctrl) {
+	obj->write_cmd(obj, DS3231_REG_CONTROL, &(ctrl->BYTE), 1);
 }
 
 /**
  * @brief  Read Status register from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  status:    Pointer to DS3231_Status object
  */
-void DS3231_read_status(DS3231_Object *obj, DS3231_Status * status) {
+void DS3231_read_status(DS3231_Handle *obj, DS3231_Status * status) {
 	obj->read_cmd(obj, DS3231_REG_STATUS, (uint8_t*)&status, 1);
 }
 
 /**
  * @brief  Write Status register to DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @param  status:    Pointer to DS3231_Status object
  */
-void DS3231_write_status(DS3231_Object *obj, DS3231_Status * status) {
+void DS3231_write_status(DS3231_Handle *obj, DS3231_Status * status) {
 	obj->write_cmd(obj, DS3231_REG_STATUS, (uint8_t*)&status, 1);
 }
 
 /**
  * @brief  Read Aging Offset register from DS3231.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @retval  aging offset
  */
-int8_t DS3231_read_aging_offset(DS3231_Object *obj) {
+int8_t DS3231_read_aging_offset(DS3231_Handle *obj) {
 	obj->read_cmd(obj, DS3231_REG_AGEOFFSET, &temp, 1);
 
 	return (int8_t)temp;
@@ -446,10 +446,10 @@ int8_t DS3231_read_aging_offset(DS3231_Object *obj) {
 
 /**
  * @brief  Start temperature conversion, if it is not running.
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  */
-void DS3231_start_conversion(DS3231_Object *obj) {
+void DS3231_start_conversion(DS3231_Handle *obj) {
 	obj->read_cmd(obj, DS3231_REG_STATUS, &temp, 1);
 	if (((DS3231_Status*)&temp)->BSY==1) {
 		return;
@@ -461,11 +461,11 @@ void DS3231_start_conversion(DS3231_Object *obj) {
 
 /**
  * @brief  Check whether conversion is done or still running (busy).
- * @param  obj:       Pointer to a DS3231_Object structure that contains
+ * @param  obj:       Pointer to a DS3231_Handle structure that contains
  *                    the information for the display.
  * @retval true if conversion is done
  */
-bool DS3231_is_conversion_done(DS3231_Object *obj) {
+bool DS3231_is_conversion_done(DS3231_Handle *obj) {
 	obj->read_cmd(obj, DS3231_REG_CONTROL, &temp, 1);
 	if (((DS3231_Control*)&temp)->CONV==1) {
 		return false;

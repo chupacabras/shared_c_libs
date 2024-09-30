@@ -49,6 +49,10 @@
 #define MSG_VALUE_RESET_CAUSE					53
 #define MSG_VALUE_RSSI							60
 #define MSG_VALUE_SNR							61
+#define MSG_VALUE_RELAY1						70
+#define MSG_VALUE_RELAY2						71
+#define MSG_VALUE_RELAY3						72
+#define MSG_VALUE_RELAY4						73
 
 #define MSG_OPTION_COUNTER						0b10000000
 #define MSG_OPTION_CRC16						0b01000000
@@ -75,6 +79,10 @@
 #define STR_RESET_CAUSE				"reset_cause"
 #define STR_RSSI					"rssi"
 #define STR_SNR						"snr"
+#define STR_RELAY1					"relay1"
+#define STR_RELAY2					"relay2"
+#define STR_RELAY3					"relay3"
+#define STR_RELAY4					"relay4"
 
 
 

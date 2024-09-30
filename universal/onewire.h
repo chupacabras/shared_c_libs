@@ -9,8 +9,8 @@
 #ifndef INC_ONEWIRE_H_
 #define INC_ONEWIRE_H_
 
-#include "stdio.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 // you can exclude onewire_search by defining that to 0
 #ifndef ONEWIRE_SEARCH

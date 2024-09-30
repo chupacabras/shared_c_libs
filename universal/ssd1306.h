@@ -1,10 +1,10 @@
 /**
-  ******************************************************************************
-  * @file    ssd1306.h
-  * @author  Juraj Lonc (juraj.lonc@gmail.com)
-  * @brief   Header file of SSD1306 driver.
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    ssd1306.h
+ * @author  Juraj Lonc (juraj.lonc@gmail.com)
+ * @brief   Header file of SSD1306 driver.
+ ******************************************************************************
+ */
 
 
 #ifndef SSD1306_H
@@ -81,76 +81,84 @@
 #define SSD1306_SCROLL_TIME_INTERVAL_25_FRAMES	0b110
 #define SSD1306_SCROLL_TIME_INTERVAL_2_FRAMES	0b111
 
-
 typedef enum tag_SSD1306_Module {
-	SSD1306_128_64, 
+	SSD1306_128_64,
 	SSD1306_128_32,
 	SSD1306_96_16
 } SSD1306_Module;
 
 typedef enum tag_SSD1306_ChargePump {
-	SSD1306_EXTERNALVCC=0, 
-	SSD1306_CHARGEPUMP=1
+	SSD1306_EXTERNALVCC = 0,
+	SSD1306_CHARGEPUMP = 1
 } SSD1306_ChargePump;
 
 typedef enum tag_SSD1306_Rotation {
-	SSD1306_ROTATION_0=0,
-	SSD1306_ROTATION_90_CW=90,
-	SSD1306_ROTATION_180=180,
-	SSD1306_ROTATION_270_CW=270
+	SSD1306_ROTATION_0 = 0,
+	SSD1306_ROTATION_90_CW = 90,
+	SSD1306_ROTATION_180 = 180,
+	SSD1306_ROTATION_270_CW = 270
 } SSD1306_Rotation;
 
-
-typedef struct tag_SSD1306_Object {
+typedef struct tag_SSD1306_Handle {
 	uint8_t address;
 	SSD1306_ChargePump charge_pump;
 	uint8_t * buffer;
+	uint8_t buf_pix_width;
+	uint8_t buf_pix_height;
+	uint16_t buf_bytes;
 	SSD1306_Module module;
 	uint8_t lcd_width;
 	uint8_t lcd_height;
-	uint16_t pixel_bytes;
+	
+	uint8_t * font;
+	
 	device_write_ptr write_cmd;
 
 	SSD1306_Rotation rotation;
-	uint8_t trans_lcd_width;	// translated value according to rotation
-	uint8_t trans_lcd_height;	// translated value according to rotation
+	uint8_t trans_buf_width; // translated value according to rotation
+	uint8_t trans_buf_height; // translated value according to rotation
 	
-} SSD1306_Object;
+	uint8_t trans_lcd_width; // translated value according to rotation
+	uint8_t trans_lcd_height; // translated value according to rotation
+
+} SSD1306_Handle;
 
 
 // basic functions
-void SSD1306_init(SSD1306_Object * obj, uint8_t * buffer, SSD1306_ChargePump chargepump, SSD1306_Module module, uint8_t i2c_address, device_write_ptr write_cmd);
-void SSD1306_display_buffer(SSD1306_Object * obj);
-void SSD1306_display_buffer_partial(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
-void SSD1306_clear_buffer(SSD1306_Object * obj);
-void SSD1306_invert_display(SSD1306_Object * obj, bool invert);
-void SSD1306_dim(SSD1306_Object * obj, bool dim);
-void SSD1306_set_rotation(SSD1306_Object * obj, SSD1306_Rotation rotation);
-bool SSD1306_is_vertical(SSD1306_Object * obj);
+void SSD1306_init(SSD1306_Handle * obj, uint8_t * buffer, uint8_t *font, uint8_t buf_pix_width, uint8_t buf_pix_height, SSD1306_ChargePump chargepump, SSD1306_Module module, uint8_t i2c_address, device_write_ptr write_cmd);
+void SSD1306_display_buffer(SSD1306_Handle * obj);
+void SSD1306_display_buffer_partial(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void SSD1306_display_buffer_at(SSD1306_Handle * obj, uint8_t x, uint8_t y);
+void SSD1306_display_buffer_partial_at(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void SSD1306_clear_buffer(SSD1306_Handle * obj);
+void SSD1306_invert_display(SSD1306_Handle * obj, bool invert);
+void SSD1306_dim(SSD1306_Handle * obj, bool dim);
+void SSD1306_set_rotation(SSD1306_Handle * obj, SSD1306_Rotation rotation);
+bool SSD1306_is_vertical(SSD1306_Handle * obj);
 
 // scrolling
-void SSD1306_scroll_right(SSD1306_Object * obj, uint8_t start_page, uint8_t stop_page);
-void SSD1306_scroll_left(SSD1306_Object * obj, uint8_t start_page, uint8_t stop_page);
-void SSD1306_scroll_vert_right(SSD1306_Object * obj, uint8_t start_page, uint8_t stop_page);
-void SSD1306_scroll_vert_left(SSD1306_Object * obj, uint8_t start_page, uint8_t stop_page);
-void SSD1306_scroll_stop(SSD1306_Object * obj);
+void SSD1306_scroll_right(SSD1306_Handle * obj, uint8_t start_page, uint8_t stop_page);
+void SSD1306_scroll_left(SSD1306_Handle * obj, uint8_t start_page, uint8_t stop_page);
+void SSD1306_scroll_vert_right(SSD1306_Handle * obj, uint8_t start_page, uint8_t stop_page);
+void SSD1306_scroll_vert_left(SSD1306_Handle * obj, uint8_t start_page, uint8_t stop_page);
+void SSD1306_scroll_stop(SSD1306_Handle * obj);
 
 // draw graphics
-void SSD1306_draw_pixel(SSD1306_Object * obj, uint8_t x, uint8_t y, bool white);
-void SSD1306_draw_line(SSD1306_Object * obj, int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool white);
-void SSD1306_draw_horizontal_line(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t w, bool white);
-void SSD1306_draw_vertical_line(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t h, bool white);
-void SSD1306_draw_rect(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h, bool white);
-void SSD1306_fill_rect(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h, bool white);
-void SSD1306_draw_circle(SSD1306_Object * obj, int16_t xc, int16_t yc, uint16_t r, bool white);
-void SSD1306_fill_circle(SSD1306_Object * obj, int16_t x0, int16_t y0, uint16_t r, bool white);
+void SSD1306_draw_pixel(SSD1306_Handle * obj, int16_t x, int16_t y, bool white);
+void SSD1306_draw_line(SSD1306_Handle * obj, int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool white);
+void SSD1306_draw_horizontal_line(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t w, bool white);
+void SSD1306_draw_vertical_line(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t h, bool white);
+void SSD1306_draw_rect(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h, bool white);
+void SSD1306_fill_rect(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t w, uint8_t h, bool white);
+void SSD1306_draw_circle(SSD1306_Handle * obj, int16_t xc, int16_t yc, uint16_t r, bool white);
+void SSD1306_fill_circle(SSD1306_Handle * obj, int16_t x0, int16_t y0, uint16_t r, bool white);
 
 // print texts
-void SSD1306_print_char(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t ch, uint8_t text_size, bool white);
-void SSD1306_print_string(SSD1306_Object * obj, uint8_t x, uint8_t y, uint8_t * text, uint8_t text_size, bool white);
+void SSD1306_print_char(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t ch, uint8_t text_size, bool white);
+void SSD1306_print_string(SSD1306_Handle * obj, uint8_t x, uint8_t y, uint8_t * text, uint8_t text_size, bool white);
 
 // draw image
-void SSD1306_draw_image(SSD1306_Object * obj, uint8_t x, uint8_t y, const uint8_t * bitmap, uint8_t w, uint8_t h);
+void SSD1306_draw_image(SSD1306_Handle * obj, uint8_t x, uint8_t y, const uint8_t * bitmap, uint8_t w, uint8_t h);
 
 
 // default font

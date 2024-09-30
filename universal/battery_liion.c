@@ -6,56 +6,59 @@ uint16_t convertBatteryLevel(uint16_t voltage) {
 //	if (voltage>4190) {
 	if (voltage>4150) {
         return 1000;
-    } else if (voltage>3950) {
-        // 100-80%
-//        return -2360+(4*voltage)/5;
-        return -3150+voltage;
-    } else if (voltage>3810) {
-        // 80-60%
-        return -4843+(10*voltage)/7;
-    } else if (voltage>3680) {
-        // 60-20%
-	return -11123+(((uint32_t)40)*voltage)/13;
-    } else if (voltage>3620) {
-        // 20-13.3%
-        return -3885+(((uint32_t)111)*voltage)/100;
-    } else if (voltage>3.52) {
-        // 13.3-6.6%
-        return -2278+(((uint32_t)333)*voltage)/500;
-    } else if (voltage>3.00) {
-        // 6.6-0%
-        return -384+(((uint32_t)333)*voltage)/2600;
-    } else {
-        return 0;
-    }
-}
-
-
-
+    } else if (voltage>3700) {
+        // 100-10%
 /*
-float convertBatteryLevel(float voltage) {
-    if (voltage>4.2) {
-        return 100.0;
-    } else if (voltage>3.95) {
-        // 100-80%
-        return 100.0-20.0*(4.2-voltage)/(4.2-3.95);
-    } else if (voltage>3.81) {
-        // 80-60%
-        return 80.0-20.0*(3.95-voltage)/(3.95-3.81);
-    } else if (voltage>3.68) {
-        // 60-20%
-        return 60.0-40.0*(3.81-voltage)/(3.81-3.68);
-    } else if (voltage>3.62) {
-        // 20-13.3%
-        return 20.0-6.66*(3.68-voltage)/(3.68-3.62);
-    } else if (voltage>3.52) {
-        // 13.3-6.6%
-        return 13.33-6.66*(3.62-voltage)/(3.62-3.52);
-    } else if (voltage>3.00) {
-        // 6.6-0%
-        return 6.66-6.66*(3.52-voltage)/(3.52-3.00);
+4150-3700=450
+90%
+
+130+90*(U-3700)/450
+130+U*90/450-90*3700/450
+130-740+U*1/5
+-610+U*1/5
+*/
+
+        return -610+voltage/5;
+    } else if (voltage>3450) {
+        // 10-5%
+/*
+3700-3450=250
+5%
+
+50+5*(U-3450)/250
+50+5*U/250-5*3450/250
+50-69+1*U/50
+-19+1*U/50
+*/
+
+        return -19+(voltage)/50;
+    } else if (voltage>3240) {
+        // 5-2%
+/*
+3450-3240=210
+3%
+
+20+3*(U-3240)/210
+20+3*U/210-3*3240/210
+20-46+1*U/70
+-26+1*U/70
+*/
+
+	return -26+(voltage)/70;
+    } else if (voltage>3000) {
+        // 2-0%
+/*
+3240-3000=240
+2%
+
+0+2*(U-3000)/240
+0+2*U/240-2*3000/240
+0-25+1*U/120
+-25+1*U/120
+*/
+
+        return -25+(voltage)/120;
     } else {
         return 0;
     }
 }
-*/

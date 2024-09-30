@@ -94,21 +94,7 @@ void DHT_interrupt_handler_io(DHT_Handle *dht) {
 	}
 }
 
-bool DHT_decode_value(DHT_Handle *dht, float *humidity, float *temperature) {
-	if (dht->stage!=DHT_STAGE_FINISHED) return false;
-	// check parity byte
-	if (((dht->data[0]+dht->data[1]+dht->data[2]+dht->data[3]) & 0xff)!=dht->data[4]) {
-		dht->stage=DHT_STAGE_INVALID_PARITY;
-		return false;
-	}
-
-	*humidity=(float)((dht->data[0] << 8) + dht->data[1]) / 10.0f;
-	*temperature=(float)((dht->data[2] << 8) + dht->data[3]) / 10.0f;
-
-	return true;
-}
-
-bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, uint16_t *temperature) {
+bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, int16_t *temperature) {
 	if (dht->stage!=DHT_STAGE_FINISHED) return false;
 	// check parity byte
 	if (((dht->data[0]+dht->data[1]+dht->data[2]+dht->data[3]) & 0xff)!=dht->data[4]) {
@@ -117,7 +103,11 @@ bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, uint16_t *temperature) {
 	}
 
 	*humidity=(dht->data[0] << 8) + dht->data[1];
-	*temperature=(dht->data[2] << 8) + dht->data[3];
+
+	*temperature=(((uint16_t)dht->data[2] & 0b01111111) << 8) + dht->data[3];
+	if (dht->data[2] & 0b10000000) {
+		*temperature=-*temperature;
+	}
 
 	return true;
 }

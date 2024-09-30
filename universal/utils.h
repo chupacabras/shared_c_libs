@@ -24,6 +24,7 @@ void char2hex(uint8_t *buffer, uint8_t c);
 uint8_t long2string(uint8_t *buffer, int32_t i);
 void double2string_fixed(uint8_t *buffer, double d, uint8_t decimals, uint8_t length);
 void double2string(uint8_t *buffer, double d, uint8_t decimals);
+void long2string_fixed(uint8_t *buffer, int32_t n, uint8_t decimals, uint8_t length);
 
 uint8_t bcd_to_num(uint8_t bcd);
 uint8_t num_to_bcd(uint8_t num);
