@@ -11,7 +11,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "device.h"
+#include <stddef.h>
+#include "bl094x_utils.h"
 
 // read-only registers
 #define BL0942_REG_I_WAVE 			0x01
@@ -61,20 +62,18 @@
 #define BL0942_FUNX_SEL_ZERO_CROSSING_CURRENT	0b11
 
 
-typedef int8_t(*bl0942_write_ptr)(uint8_t *, uint8_t);
-typedef int8_t(*bl0942_read_ptr)(uint8_t *, uint8_t);
 
-
-typedef enum {
-	BL0942_COM_UART=0,
-	BL0942_COM_SPI=1
-} BL0942_Com;
+//typedef enum {
+//	BL0942_COM_UART=0,
+//	BL0942_COM_SPI=1
+//} BL0942_Com;
 
 typedef struct {
-	bl0942_write_ptr write_reg;
-	bl0942_read_ptr read_reg;
+	bl094x_write_ptr write_reg;
+	bl094x_read_ptr read_reg;
+	bl094x_cs_ptr chip_select;
 	uint8_t addr;
-	BL0942_Com com_type;
+//	BL0942_Com com_type;
 } BL0942_Handle;
 
 
@@ -152,8 +151,8 @@ typedef enum {
 	BL0942_FREQ_16CYC=0b11
 } BL0942_FrequencyUpdateCycles;
 
-void BL0942_init_SPI(BL0942_Handle *handle, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg);
-void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg);
+void BL0942_init_SPI(BL0942_Handle *handle, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg, bl094x_cs_ptr chip_select);
+void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg);
 
 uint8_t BL0942_read_i_wave(BL0942_Handle *handle, int32_t *val);
 uint8_t BL0942_read_v_wave(BL0942_Handle *handle, int32_t *val);
@@ -193,7 +192,5 @@ uint8_t BL0942_soft_reset(BL0942_Handle *handle);
 
 uint8_t BL0942_disable_write_protection(BL0942_Handle *handle);
 
-
-uint8_t BL0942_calculate_checksum(uint8_t *data1, uint8_t len1, uint8_t *data2, uint8_t len2);
 
 #endif /* INC_BL0942_H_ */

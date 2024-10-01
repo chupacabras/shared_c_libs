@@ -8,7 +8,7 @@
 
 #include "bl0942.h"
 
-uint8_t tmp_data[3];
+static uint8_t tmp_data[3];
 
 /**
  * @brief  BL0942 initialization.
@@ -18,45 +18,22 @@ uint8_t tmp_data[3];
  * @param	delay_ms	The function that makes delay in milliseconds. Hardware dependent.
  * @retval	status		0=device found
  */
-void BL0942_init_SPI(BL0942_Handle *handle, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg) {
+void BL0942_init_SPI(BL0942_Handle *handle, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg, bl094x_cs_ptr chip_select) {
 	handle->write_reg=write_reg;
 	handle->read_reg=read_reg;
-	handle->com_type=BL0942_COM_SPI;
-
-//	obj->addr=addrpin==0?BL0942_I2C_ADDRESS_LOW:BL0942_I2C_ADDRESS_HIGH;
-//
-//	// after power-up: it takes 20 milliseconds at most to enter idle state
-//	obj->delay_ms(20);
-//	uint8_t ret=obj->write_reg(obj, BL0942_CMD_INIT, 0, 0);
-//	if (ret!=0) return ret;
-//
-//	obj->delay_ms(20);
-//	BL0942_soft_reset(obj);
-//	// Soft reset takes no more than 20 milliseconds
-//	obj->delay_ms(20);
-//	return 0;
+	handle->chip_select=chip_select;
+//	handle->com_type=BL0942_COM_SPI;
+	handle->addr=0;
 }
 
-void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg) {
+void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg) {
 	handle->write_reg=write_reg;
 	handle->read_reg=read_reg;
-	handle->com_type=BL0942_COM_UART;
+	handle->chip_select=NULL;
+//	handle->com_type=BL0942_COM_UART;
 	handle->addr=0;
 	if (addr1) handle->addr|=0b01;
 	if (addr2) handle->addr|=0b10;
-
-//	obj->addr=addrpin==0?BL0942_I2C_ADDRESS_LOW:BL0942_I2C_ADDRESS_HIGH;
-//
-//	// after power-up: it takes 20 milliseconds at most to enter idle state
-//	obj->delay_ms(20);
-//	uint8_t ret=obj->write_reg(obj, BL0942_CMD_INIT, 0, 0);
-//	if (ret!=0) return ret;
-//
-//	obj->delay_ms(20);
-//	BL0942_soft_reset(obj);
-//	// Soft reset takes no more than 20 milliseconds
-//	obj->delay_ms(20);
-//	return 0;
 }
 
 static uint8_t BL0942_read_reg(BL0942_Handle *handle, uint8_t reg_addr, uint8_t *data, uint8_t count) {
@@ -64,11 +41,13 @@ static uint8_t BL0942_read_reg(BL0942_Handle *handle, uint8_t reg_addr, uint8_t 
 	tmp[0]=BL0942_ADDR_READ | handle->addr;
 	tmp[1]=reg_addr;
 
+	if (handle->chip_select!=NULL) handle->chip_select(true);
 	handle->write_reg(tmp, 2);
 	uint8_t stat=handle->read_reg(data, count);
 	stat=handle->read_reg(&tmp[2], 1);
+	if (handle->chip_select!=NULL) handle->chip_select(false);
 
-	uint8_t chksum=BL0942_calculate_checksum(tmp, 2, data, count);
+	uint8_t chksum=BL094X_calculate_checksum(tmp, 2, data, count);
 	if (tmp[2]!=chksum) return 10;
 
 	return stat;
@@ -79,93 +58,22 @@ static uint8_t BL0942_write_reg(BL0942_Handle *handle, uint8_t reg_addr, uint8_t
 	tmp[0]=BL0942_ADDR_WRITE | handle->addr;
 	tmp[1]=reg_addr;
 
-	uint8_t chksum=BL0942_calculate_checksum(tmp, 2, data, count);
+	uint8_t chksum=BL094X_calculate_checksum(tmp, 2, data, count);
 
+	if (handle->chip_select!=NULL) handle->chip_select(true);
 	handle->write_reg(tmp, 2);
 	handle->write_reg(data, count);
 	uint8_t stat=handle->write_reg(&chksum, 1);
+	if (handle->chip_select!=NULL) handle->chip_select(false);
 
 	return stat;
-}
-
-uint8_t BL0942_calculate_checksum(uint8_t *data1, uint8_t len1, uint8_t *data2, uint8_t len2) {
-	uint8_t tmp=0;
-	uint8_t q=0;
-
-	for (q=0; q<len1; q++) {
-		tmp+=data1[q];
-	}
-
-	for (q=0; q<len2; q++) {
-		tmp+=data2[q];
-	}
-
-	tmp^=0xff;
-
-	return tmp;
-}
-
-static void convert_signed24_value(uint8_t *data, int32_t *val) {
-	bool neg=false;
-	if (data[0] & 0x80) {
-		neg=true;
-		data[0]&=0x7f;
-		data[0]^=0xff;
-		data[1]^=0xff;
-		data[2]^=0xff;
-	}
-
-	*val=data[0];
-	*val<<=8;
-	*val|=data[1];
-	*val<<=8;
-	*val|=data[2];
-
-	if (neg) {
-		*val=-*val;
-	}
-}
-
-static void convert_signed20_value(uint8_t *data, int32_t *val) {
-	bool neg=false;
-	if (data[0] & 0x08) {
-		neg=true;
-		data[0]&=0x07;
-		data[0]^=0xff;
-		data[1]^=0xff;
-		data[2]^=0xff;
-	}
-
-	*val=data[0];
-	*val<<=8;
-	*val|=data[1];
-	*val<<=8;
-	*val|=data[2];
-
-	if (neg) {
-		*val=-*val;
-	}
-}
-
-static void convert_unsigned24_value(uint8_t *data, uint32_t *val) {
-	*val=data[0];
-	*val<<=8;
-	*val|=data[1];
-	*val<<=8;
-	*val|=data[2];
-}
-
-static void convert_unsigned16_value(uint8_t *data, uint16_t *val) {
-	*val=data[0];
-	*val<<=8;
-	*val|=data[1];
 }
 
 uint8_t BL0942_read_i_wave(BL0942_Handle *handle, int32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_I_WAVE, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_signed20_value(tmp_data, val);
+	BL094X_convert_signed20_value(tmp_data, val);
 
 	return 0;
 }
@@ -174,7 +82,7 @@ uint8_t BL0942_read_v_wave(BL0942_Handle *handle, int32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_V_WAVE, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_signed20_value(tmp_data, val);
+	BL094X_convert_signed20_value(tmp_data, val);
 
 	return 0;
 }
@@ -188,7 +96,7 @@ uint8_t BL0942_read_i_rms(BL0942_Handle *handle, uint32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_I_RMS, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned24_value(tmp_data, val);
+	BL094X_convert_unsigned24_value(tmp_data, val);
 
 	return 0;
 }
@@ -202,7 +110,7 @@ uint8_t BL0942_read_v_rms(BL0942_Handle *handle, uint32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_V_RMS, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned24_value(tmp_data, val);
+	BL094X_convert_unsigned24_value(tmp_data, val);
 
 	return 0;
 }
@@ -213,7 +121,7 @@ uint8_t BL0942_read_i_fast_rms(BL0942_Handle *handle, uint32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_I_FAST_RMS, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned24_value(tmp_data, val);
+	BL094X_convert_unsigned24_value(tmp_data, val);
 
 	return 0;
 }
@@ -228,7 +136,7 @@ uint8_t BL0942_read_watt(BL0942_Handle *handle, int32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_WATT, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_signed24_value(tmp_data, val);
+	BL094X_convert_signed24_value(tmp_data, val);
 
 	return 0;
 }
@@ -239,7 +147,7 @@ uint8_t BL0942_read_cf_count(BL0942_Handle *handle, uint32_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_CF_CNT, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned24_value(tmp_data, val);
+	BL094X_convert_unsigned24_value(tmp_data, val);
 
 	return 0;
 }
@@ -248,7 +156,7 @@ uint8_t BL0942_read_frequency_reg(BL0942_Handle *handle, uint16_t *val) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_FREQ, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned16_value(tmp_data, val);
+	BL094X_convert_unsigned16_value(tmp_data, val);
 
 	return 0;
 }
@@ -260,7 +168,7 @@ uint8_t BL0942_read_frequency(BL0942_Handle *handle, uint16_t *frequency) {
 	if (ret!=0) return ret;
 
 	uint32_t val;
-	convert_unsigned24_value(tmp_data, &val);
+	BL094X_convert_unsigned24_value(tmp_data, &val);
 	val=1000000000/val;
 	uint8_t m=val%10;
 	val/=10;
@@ -287,7 +195,7 @@ uint8_t BL0942_read_all(BL0942_Handle *handle, BL0942_AllData *data) {
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_READ_ALL, data->DATA, 23);
 	if (ret!=0) return ret;
 
-//	convert_unsigned16_value(data, val);
+//	BL094X_convert_unsigned16_value(data, val);
 
 	return 0;
 }
@@ -336,7 +244,7 @@ uint8_t BL0942_read_i_fast_rms_threshold(BL0942_Handle *handle, uint16_t *i_rms_
 	uint8_t ret=BL0942_read_reg(handle, BL0942_REG_I_FAST_RMS_TH, tmp_data, 3);
 	if (ret!=0) return ret;
 
-	convert_unsigned16_value(tmp_data, i_rms_threshold);
+	BL094X_convert_unsigned16_value(tmp_data, i_rms_threshold);
 
 	return 0;
 }
