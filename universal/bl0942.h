@@ -38,9 +38,11 @@
 #define BL0942_REG_SOFT_RESET 		0x1c
 #define BL0942_REG_USR_WRPROT 		0x1d
 
-#define BL0942_UART_ADDR		 	0x58
-#define BL0942_SPI_READ			 	0x58
-#define BL0942_SPI_WRITE		 	0xA8
+#define BL0942_ADDR_READ		 	0x58
+#define BL0942_ADDR_WRITE		 	0xA8
+
+#define BL0942_UNLOCK_CODE		 	0x55
+#define BL0942_SOFT_RESET_CODE	 	0x5A
 
 
 #define BL0942_MODE_RMS_UPDATE_SEL_400MS		0
@@ -58,15 +60,19 @@
 #define BL0942_FUNX_SEL_ZERO_CROSSING_VOLTAGE	0b10
 #define BL0942_FUNX_SEL_ZERO_CROSSING_CURRENT	0b11
 
+
+typedef int8_t(*bl0942_write_ptr)(uint8_t *, uint8_t);
+typedef int8_t(*bl0942_read_ptr)(uint8_t *, uint8_t);
+
+
 typedef enum {
 	BL0942_COM_UART=0,
 	BL0942_COM_SPI=1
 } BL0942_Com;
 
 typedef struct {
-	device_write_ptr write_reg;
-	device_read_ptr read_reg;
-	device_delay_ms_ptr delay_ms;
+	bl0942_write_ptr write_reg;
+	bl0942_read_ptr read_reg;
 	uint8_t addr;
 	BL0942_Com com_type;
 } BL0942_Handle;
@@ -146,60 +152,48 @@ typedef enum {
 	BL0942_FREQ_16CYC=0b11
 } BL0942_FrequencyUpdateCycles;
 
-//typedef struct {
-//	uint8_t data[6];
-//} BL0942_Measurement;
+void BL0942_init_SPI(BL0942_Handle *handle, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg);
+void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl0942_write_ptr write_reg, bl0942_read_ptr read_reg);
+
+uint8_t BL0942_read_i_wave(BL0942_Handle *handle, int32_t *val);
+uint8_t BL0942_read_v_wave(BL0942_Handle *handle, int32_t *val);
+uint8_t BL0942_read_i_rms(BL0942_Handle *handle, uint32_t *val);
+uint8_t BL0942_read_v_rms(BL0942_Handle *handle, uint32_t *val);
+uint8_t BL0942_read_i_fast_rms(BL0942_Handle *handle, uint32_t *i_fast_rms);
+uint8_t BL0942_read_watt(BL0942_Handle *handle, int32_t *val);
+uint8_t BL0942_read_cf_count(BL0942_Handle *handle, uint32_t *val);
+uint8_t BL0942_read_frequency_reg(BL0942_Handle *handle, uint16_t *val);
+uint8_t BL0942_read_frequency(BL0942_Handle *handle, uint16_t *frequency);
+uint8_t BL0942_read_status(BL0942_Handle *handle, BL0942_Status *status);
 
 
-uint8_t BL0942_init_SPI(BL0942_Handle *obj, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
-uint8_t BL0942_init_UART(BL0942_Handle *obj, uint8_t addr1, uint8_t addr2, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
 
-void BL0942_read_status(BL0942_Handle *obj, BL0942_Status *status);
-void BL0942_set_ot_funx(BL0942_Handle *obj, BL0942_OtFunx *status);
-void BL0942_read_mode(BL0942_Handle *obj, BL0942_Mode *mode);
-void BL0942_set_mode(BL0942_Handle *obj, BL0942_Mode *mode);
-void BL0942_soft_reset(BL0942_Handle *obj);
-void BL0942_read_v_wave(BL0942_Handle *obj, uint8_t *data);
-void BL0942_read_i_wave(BL0942_Handle *obj, uint8_t *data);
+uint8_t BL0942_read_all(BL0942_Handle *handle, BL0942_AllData *data);
 
-void BL0942_read_watt(BL0942_Handle *obj, uint8_t *data);
-// V = VP - GND, [mV]
-// I = IP - IN, [mV]
-// WATT_REG = 3537 * I * V * cos(fi) / Vref^2
-// Vref = 1.218V
-// W_VAL = WATT_REG * Vref^2 / 3537
 
-uint8_t BL0942_read_anticreep_threshold(BL0942_Handle *obj);
-void BL0942_set_anticreep_threshold(BL0942_Handle *obj, uint8_t wa_creep);
-// WA_CREEP = WATT_REG * 256 / 3125
 
-void BL0942_read_cf_count(BL0942_Handle *obj, uint8_t *data);
-// Cumulative time of each CF pulse:
-// tCF = 1638.4 * 256 / WATT_REG
+uint8_t BL0942_read_i_rms_offset(BL0942_Handle *handle, uint8_t *offset);
+uint8_t BL0942_set_i_rms_offset(BL0942_Handle *handle, uint8_t offset);
+uint8_t BL0942_read_anticreep_threshold(BL0942_Handle *handle, uint8_t *wa_creep);
+uint8_t BL0942_set_anticreep_threshold(BL0942_Handle *handle, uint8_t wa_creep);
+uint8_t BL0942_read_i_fast_rms_threshold(BL0942_Handle *handle, uint16_t *i_rms_threshold);
+uint8_t BL0942_set_i_fast_rms_threshold(BL0942_Handle *handle, uint16_t *i_rms_threshold);
+uint8_t BL0942_read_i_fast_rms_cycles(BL0942_Handle *handle, BL0942_FastRMSCycles *cycles);
+uint8_t BL0942_set_i_fast_rms_cycles(BL0942_Handle *handle, BL0942_FastRMSCycles cycles);
+uint8_t BL0942_read_frequency_update_cycles(BL0942_Handle *handle, BL0942_FrequencyUpdateCycles *cycles);
+uint8_t BL0942_set_frequency_update_cycles(BL0942_Handle *handle, BL0942_FrequencyUpdateCycles cycles);
+uint8_t BL0942_read_ot_funx(BL0942_Handle *handle, BL0942_OtFunx *status);
+uint8_t BL0942_set_ot_funx(BL0942_Handle *handle, BL0942_OtFunx status);
+uint8_t BL0942_read_mode(BL0942_Handle *handle, BL0942_Mode *mode);
+uint8_t BL0942_set_mode(BL0942_Handle *handle, BL0942_Mode *mode);
+uint8_t BL0942_read_i_gain(BL0942_Handle *handle, uint8_t *gain);
+uint8_t BL0942_set_i_gain(BL0942_Handle *handle, uint8_t gain);
 
-void BL0942_read_v_rms(BL0942_Handle *obj, uint8_t *data);
-// Voltage RMS register equation:
-// V = VP - GND, [mV]
-// V_RMS_REG = 73989 * V / Vref
-// V = V_RMS_REG * Vref / 73989 [mV]
-void BL0942_read_i_rms(BL0942_Handle *obj, uint8_t *data);
-// Current RMS register equation:
-// I = IP - IN, [mV]
-// I_RMS_REG = 305978 * I / Vref
-// I = I_RMS_REG * Vref / 305978
+uint8_t BL0942_soft_reset(BL0942_Handle *handle);
 
-void BL0942_set_current_rms_threshold(BL0942_Handle *obj, uint16_t *i_rms_threshold);
-void BL0942_read_current_rms_threshold(BL0942_Handle *obj, uint16_t *i_rms_threshold);
+uint8_t BL0942_disable_write_protection(BL0942_Handle *handle);
 
-void BL0942_read_current_fast_rms(BL0942_Handle *obj, uint16_t *i_fast_rms);
-// I_FAST_RMS_REG ~ I_RMS_REG * 0.363
 
-void BL0942_set_current_fast_rms_cycles(BL0942_Handle *obj, BL0942_FastRMSCycles cycles);
-void BL0942_read_frequency(BL0942_Handle *obj, uint16_t *frequency);
-// f = 1000000 / FREQ_REG, [Hz]
-
-void BL0942_set_frequency_update_cycles(BL0942_Handle *obj, BL0942_FrequencyUpdateCycles cycles);
-
-void BL0942_read_all(BL0942_Handle *obj, BL0942_AllData *data);
+uint8_t BL0942_calculate_checksum(uint8_t *data1, uint8_t len1, uint8_t *data2, uint8_t len2);
 
 #endif /* INC_BL0942_H_ */
