@@ -17,6 +17,7 @@ static uint8_t tmp_data[3];
  * @param	read_reg	The function that reads data from the module. Hardware dependent.
  * @retval	status		0=device found
  */
+// SPI max speed 900kHz
 void BL0940_init(BL0940_Handle *handle, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg, bl094x_cs_ptr chip_select) {
 	handle->write_reg=write_reg;
 	handle->read_reg=read_reg;

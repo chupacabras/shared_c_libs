@@ -9,6 +9,10 @@
 #ifndef INC_PCF8563_H_
 #define INC_PCF8563_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "rtc.h"
 #include "stdbool.h"
 #include "device.h"
@@ -85,7 +89,7 @@ typedef enum {
 typedef struct {
 	device_write_ptr write_cmd;
 	device_read_ptr read_cmd;
-} PCF8563_Object;
+} PCF8563_Handle;
 
 typedef union {
 	struct {
@@ -176,22 +180,26 @@ typedef union {
 
 
 
-void PCF8563_init(PCF8563_Object * obj, device_write_ptr write_cmd, device_read_ptr read_cmd);
-void PCF8563_read_time(PCF8563_Object *obj, RTC_time * time);
-void PCF8563_write_time(PCF8563_Object *obj, RTC_time * time);
-PCF8563_ControlStatus1 PCF8563_get_control_status1(PCF8563_Object *obj);
-PCF8563_ControlStatus2 PCF8563_get_control_status2(PCF8563_Object *obj);
-PCF8563_CLKOUT_Control PCF8563_get_clkout_control(PCF8563_Object *obj);
-void PCF8563_read_alarm(PCF8563_Object *obj, PCF8563_Alarm * alarm);
-void PCF8563_set_alarm(PCF8563_Object *obj, uint8_t date, uint8_t weekday, uint8_t hours, uint8_t minutes, uint8_t alarm_flags);
-void DS3231_disable_alarm(PCF8563_Object *obj);
-bool DS3231_get_alarm_flag(PCF8563_Object *obj);
-void DS3231_clear_alarm_flag(PCF8563_Object *obj);
-void PCF8563_set_timer(PCF8563_Object *obj, uint8_t timer, PCF8563_TimerSource clock_source);
-void DS3231_disable_timer(PCF8563_Object *obj);
-bool DS3231_get_timer_flag(PCF8563_Object *obj);
-void DS3231_clear_timer_flag(PCF8563_Object *obj);
-bool DS3231_clock_integrity_guaranteed(PCF8563_Object *obj);
+void PCF8563_init(PCF8563_Handle * handle, device_write_ptr write_cmd, device_read_ptr read_cmd);
+void PCF8563_read_time(PCF8563_Handle *handle, RTC_time * time);
+void PCF8563_write_time(PCF8563_Handle *handle, RTC_time * time);
+PCF8563_ControlStatus1 PCF8563_get_control_status1(PCF8563_Handle *handle);
+PCF8563_ControlStatus2 PCF8563_get_control_status2(PCF8563_Handle *handle);
+PCF8563_CLKOUT_Control PCF8563_get_clkout_control(PCF8563_Handle *handle);
+void PCF8563_read_alarm(PCF8563_Handle *handle, PCF8563_Alarm * alarm);
+void PCF8563_set_alarm(PCF8563_Handle *handle, uint8_t date, uint8_t weekday, uint8_t hours, uint8_t minutes, uint8_t alarm_flags);
+void DS3231_disable_alarm(PCF8563_Handle *handle);
+bool DS3231_get_alarm_flag(PCF8563_Handle *handle);
+void DS3231_clear_alarm_flag(PCF8563_Handle *handle);
+void PCF8563_set_timer(PCF8563_Handle *handle, uint8_t timer, PCF8563_TimerSource clock_source);
+void DS3231_disable_timer(PCF8563_Handle *handle);
+bool DS3231_get_timer_flag(PCF8563_Handle *handle);
+void DS3231_clear_timer_flag(PCF8563_Handle *handle);
+bool DS3231_clock_integrity_guaranteed(PCF8563_Handle *handle);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_PCF8563_H_ */

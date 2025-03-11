@@ -9,6 +9,10 @@
 #ifndef INC_BMP280_H_
 #define INC_BMP280_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
@@ -299,5 +303,9 @@ void BMP280_set_work_mode(BMP280_Handle *handle, uint8_t work_mode);
  * @retval	retval			altitude in meters
  */
 uint16_t BMP280_get_altitude(BMP280_Handle *handle, float sea_level_hpa);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_BMP280_H_ */

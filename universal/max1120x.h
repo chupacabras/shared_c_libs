@@ -9,6 +9,10 @@
 #ifndef INC_MAX1120X_H_
 #define INC_MAX1120X_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "device.h"
@@ -129,5 +133,9 @@ void MAX1120X_read_register_3byte(MAX1120X_Handle *handle, MAX1120X_Register reg
 bool MAX1120X_wait_for_conversion_done(MAX1120X_Handle *handle);
 
 void MAX1120X_system_calibration(MAX1120X_Handle *handle, device_set_input_signal_ptr set_zero_signal, device_set_input_signal_ptr set_full_signal, device_set_input_signal_ptr set_normal_signal);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

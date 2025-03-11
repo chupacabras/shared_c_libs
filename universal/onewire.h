@@ -9,6 +9,10 @@
 #ifndef INC_ONEWIRE_H_
 #define INC_ONEWIRE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -102,5 +106,9 @@ uint8_t onewire_crc8(uint8_t *addr, uint8_t len);
 uint8_t onewire_check_crc16(uint8_t* input, uint16_t len, uint8_t* inverted_crc);
 uint16_t onewire_crc16(uint8_t* input, uint16_t len);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_ONEWIRE_H_ */

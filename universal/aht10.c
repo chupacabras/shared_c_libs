@@ -10,56 +10,56 @@
 
 /**
  * @brief  AHT10 initialization.
- * @param	obj*		pointer to AHT10_Handle
+ * @param	handle*		pointer to AHT10_Handle
  * @param	write_reg	The function that writes command to the module. Hardware dependent.
  * @param	read_reg	The function that reads data from the module. Hardware dependent.
  * @param	delay_ms	The function that makes delay in milliseconds. Hardware dependent.
  * @retval	status		0=device found
  */
-uint8_t AHT10_init(AHT10_Handle *obj, uint8_t addrpin, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms) {
-	obj->write_reg=write_reg;
-	obj->read_reg=read_reg;
-	obj->delay_ms=delay_ms;
+uint8_t AHT10_init(AHT10_Handle *handle, uint8_t addrpin, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms) {
+	handle->write_reg=write_reg;
+	handle->read_reg=read_reg;
+	handle->delay_ms=delay_ms;
 
-	obj->addr=addrpin==0?AHT10_I2C_ADDRESS_LOW:AHT10_I2C_ADDRESS_HIGH;
+	handle->addr=addrpin==0?AHT10_I2C_ADDRESS_LOW:AHT10_I2C_ADDRESS_HIGH;
 
 	// after power-up: it takes 20 milliseconds at most to enter idle state
-	obj->delay_ms(20);
-	uint8_t ret=obj->write_reg(obj, AHT10_CMD_INIT, 0, 0);
+	handle->delay_ms(20);
+	uint8_t ret=handle->write_reg(handle, AHT10_CMD_INIT, 0, 0);
 	if (ret!=0) return ret;
 
-	obj->delay_ms(20);
-	AHT10_soft_reset(obj);
+	handle->delay_ms(20);
+	AHT10_soft_reset(handle);
 	// Soft reset takes no more than 20 milliseconds
-	obj->delay_ms(20);
+	handle->delay_ms(20);
 	return 0;
 }
 
 /**
  * @brief  AHT10 soft restart.
- * @param	obj*		pointer to AHT10_Handle
+ * @param	handle*		pointer to AHT10_Handle
  */
-void AHT10_soft_reset(AHT10_Handle *obj) {
-	obj->write_reg(obj, AHT10_CMD_SOFT_RESET, 0, 0);
+void AHT10_soft_reset(AHT10_Handle *handle) {
+	handle->write_reg(handle, AHT10_CMD_SOFT_RESET, 0, 0);
 }
 
 /**
  * @brief  AHT10 trigger measurement.
- * @param	obj*		pointer to AHT10_Handle
+ * @param	handle*		pointer to AHT10_Handle
  */
-void AHT10_trigger_measurement(AHT10_Handle *obj) {
+void AHT10_trigger_measurement(AHT10_Handle *handle) {
 	uint8_t data[]={0b00110011, 0};
-	obj->write_reg(obj, AHT10_CMD_TRIGGER_MEASUREMENT, data, 2);
+	handle->write_reg(handle, AHT10_CMD_TRIGGER_MEASUREMENT, data, 2);
 }
 
 /**
  * @brief  AHT10 read measurement.
- * @param	obj*			pointer to AHT10_Handle
+ * @param	handle*			pointer to AHT10_Handle
  * @param	measurement*	pointer to AHT10_Measurement where to store data to
  * @retval	bool			measurement is done and measurement data is correct
  */
-bool AHT10_read_measurement(AHT10_Handle *obj, AHT10_Measurement *measurement) {
-	obj->read_reg(obj, 0, measurement->data, 6);
+bool AHT10_read_measurement(AHT10_Handle *handle, AHT10_Measurement *measurement) {
+	handle->read_reg(handle, 0, measurement->data, 6);
 
 	return (~measurement->data[0] & 0x80) && !(measurement->data[1] == 0 && measurement->data[2] == 0 && measurement->data[3] == 0);
 }

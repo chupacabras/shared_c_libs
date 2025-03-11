@@ -9,6 +9,10 @@
 #ifndef INC_MAX5216_H_
 #define INC_MAX5216_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "device.h"
@@ -32,5 +36,9 @@ typedef struct {
 void MAX5216_init(MAX5216_Handle *handle, device_write_pin_ptr write_cs, device_spi_write_ptr write_cmd);
 void MAX5216_set_dac_value(MAX5216_Handle *handle, uint16_t val);
 void MAX5216_power(MAX5216_Handle *handle, MAX5216_Power power);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

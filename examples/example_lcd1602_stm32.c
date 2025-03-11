@@ -7,12 +7,12 @@ void hw_delay_ms(uint16_t ms) {
 }
 
 int8_t lcd_i2c_read(void *handle, uint8_t reg, uint8_t *data, uint16_t count) {
-	HAL_I2C_Master_Receive(&hi2c1, ((LCD_Handle*)handle)->pcf8574_obj.addr, data, count, 100);
+	HAL_I2C_Master_Receive(&hi2c1, ((LCD_Handle*)handle)->pcf8574_handle.addr, data, count, 100);
 	return 0;
 }
 
 int8_t lcd_i2c_write(void *handle, uint8_t reg, uint8_t *data, uint16_t count) {
-	HAL_I2C_Master_Transmit(&hi2c1, ((LCD_Handle*)handle)->pcf8574_obj.addr, data, count, 100);
+	HAL_I2C_Master_Transmit(&hi2c1, ((LCD_Handle*)handle)->pcf8574_handle.addr, data, count, 100);
 	return 0;
 }
 

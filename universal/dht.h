@@ -9,6 +9,10 @@
 #ifndef INC_DHT_H_
 #define INC_DHT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -95,5 +99,9 @@ bool DHT_get_value(DHT_Handle *dht, uint16_t *humidity, int16_t *temperature);
  */
 void DHT_interrupt_handler_io(DHT_Handle *dht);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_DHT_H_ */

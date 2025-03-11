@@ -9,6 +9,10 @@
 #ifndef __DS3231_H
 #define __DS3231_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "rtc.h"
 #include "stdbool.h"
 #include "device.h"
@@ -146,41 +150,45 @@ typedef struct {
 } DS3231_Status;
 
 
-void DS3231_init(DS3231_Handle * obj, device_write_ptr write_cmd, device_read_ptr read_cmd);
-//void DS3231_get_seconds(DS3231_Handle *obj, RTC_time * time);
-//void DS3231_get_minutes(DS3231_Handle *obj, RTC_time *time);
-//void DS3231_get_hours(DS3231_Handle *obj, RTC_time *time);
-//void DS3231_get_day_of_week(DS3231_Handle *obj, RTC_time *time);
-//void DS3231_get_date(DS3231_Handle *obj, RTC_time *time);
-//void DS3231_get_month(DS3231_Handle *obj, RTC_time *time);
-//void DS3231_get_year(DS3231_Handle *obj, RTC_time *time);
-void DS3231_read_time(DS3231_Handle *obj, RTC_time * time);
-//void DS3231_set_seconds(DS3231_Handle *obj, uint8_t val);
-//void DS3231_set_minutes(DS3231_Handle *obj, uint8_t val);
-//void DS3231_set_hours(DS3231_Handle *obj, uint8_t val, RTCHoursFormat hour_format);
-void DS3231_set_day_of_week(DS3231_Handle *obj, RTCDay val);
-//void DS3231_set_date(DS3231_Handle *obj, uint8_t val);
-//void DS3231_set_month(DS3231_Handle *obj, uint8_t val);
-//void DS3231_set_year(DS3231_Handle *obj, uint8_t val);
-int16_t DS3231_get_temperature_int(DS3231_Handle *obj);
-float DS3231_get_temperature(DS3231_Handle *obj);
-void DS3231_write_time(DS3231_Handle *obj, RTC_time * time);
-void DS3231_set_time_values(DS3231_Handle *obj, uint8_t hours, uint8_t minutes, uint8_t seconds);
-void DS3231_set_date_values(DS3231_Handle *obj, uint8_t year, uint8_t month, uint8_t day_of_month);
-void DS3231_read_alarm1(DS3231_Handle *obj, DS3231_Alarm1 * alarm1);
-void DS3231_write_alarm1(DS3231_Handle *obj, DS3231_Alarm1 * alarm1);
-void DS3231_set_alarm1(DS3231_Handle *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, uint8_t seconds, DS3231_Alarm1Rate rate);
-void DS3231_disable_alarm1(DS3231_Handle *obj);
-void DS3231_set_alarm2(DS3231_Handle *obj, uint8_t date_day, uint8_t hours, uint8_t minutes, DS3231_Alarm2Rate rate);
-void DS3231_disable_alarm2(DS3231_Handle *obj);
-void DS3231_read_alarm2(DS3231_Handle *obj, DS3231_Alarm2 * alarm2);
-void DS3231_write_alarm2(DS3231_Handle *obj, DS3231_Alarm2 * alarm2);
-void DS3231_read_control(DS3231_Handle *obj, DS3231_Control * control);
-void DS3231_write_control(DS3231_Handle *obj, DS3231_Control * control);
-void DS3231_read_status(DS3231_Handle *obj, DS3231_Status * status);
-void DS3231_write_status(DS3231_Handle *obj, DS3231_Status * status);
-int8_t DS3231_read_aging_offset(DS3231_Handle *obj);
-void DS3231_start_conversion(DS3231_Handle *obj);
-bool DS3231_is_conversion_done(DS3231_Handle *obj);
+void DS3231_init(DS3231_Handle * handle, device_write_ptr write_cmd, device_read_ptr read_cmd);
+//void DS3231_get_seconds(DS3231_Handle *handle, RTC_time * time);
+//void DS3231_get_minutes(DS3231_Handle *handle, RTC_time *time);
+//void DS3231_get_hours(DS3231_Handle *handle, RTC_time *time);
+//void DS3231_get_day_of_week(DS3231_Handle *handle, RTC_time *time);
+//void DS3231_get_date(DS3231_Handle *handle, RTC_time *time);
+//void DS3231_get_month(DS3231_Handle *handle, RTC_time *time);
+//void DS3231_get_year(DS3231_Handle *handle, RTC_time *time);
+void DS3231_read_time(DS3231_Handle *handle, RTC_time * time);
+//void DS3231_set_seconds(DS3231_Handle *handle, uint8_t val);
+//void DS3231_set_minutes(DS3231_Handle *handle, uint8_t val);
+//void DS3231_set_hours(DS3231_Handle *handle, uint8_t val, RTCHoursFormat hour_format);
+void DS3231_set_day_of_week(DS3231_Handle *handle, RTCDay val);
+//void DS3231_set_date(DS3231_Handle *handle, uint8_t val);
+//void DS3231_set_month(DS3231_Handle *handle, uint8_t val);
+//void DS3231_set_year(DS3231_Handle *handle, uint8_t val);
+int16_t DS3231_get_temperature_int(DS3231_Handle *handle);
+float DS3231_get_temperature(DS3231_Handle *handle);
+void DS3231_write_time(DS3231_Handle *handle, RTC_time * time);
+void DS3231_set_time_values(DS3231_Handle *handle, uint8_t hours, uint8_t minutes, uint8_t seconds);
+void DS3231_set_date_values(DS3231_Handle *handle, uint8_t year, uint8_t month, uint8_t day_of_month);
+void DS3231_read_alarm1(DS3231_Handle *handle, DS3231_Alarm1 * alarm1);
+void DS3231_write_alarm1(DS3231_Handle *handle, DS3231_Alarm1 * alarm1);
+void DS3231_set_alarm1(DS3231_Handle *handle, uint8_t date_day, uint8_t hours, uint8_t minutes, uint8_t seconds, DS3231_Alarm1Rate rate);
+void DS3231_disable_alarm1(DS3231_Handle *handle);
+void DS3231_set_alarm2(DS3231_Handle *handle, uint8_t date_day, uint8_t hours, uint8_t minutes, DS3231_Alarm2Rate rate);
+void DS3231_disable_alarm2(DS3231_Handle *handle);
+void DS3231_read_alarm2(DS3231_Handle *handle, DS3231_Alarm2 * alarm2);
+void DS3231_write_alarm2(DS3231_Handle *handle, DS3231_Alarm2 * alarm2);
+void DS3231_read_control(DS3231_Handle *handle, DS3231_Control * control);
+void DS3231_write_control(DS3231_Handle *handle, DS3231_Control * control);
+void DS3231_read_status(DS3231_Handle *handle, DS3231_Status * status);
+void DS3231_write_status(DS3231_Handle *handle, DS3231_Status * status);
+int8_t DS3231_read_aging_offset(DS3231_Handle *handle);
+void DS3231_start_conversion(DS3231_Handle *handle);
+bool DS3231_is_conversion_done(DS3231_Handle *handle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

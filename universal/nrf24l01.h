@@ -54,6 +54,10 @@
 #ifndef NRF24L01_H
 #define	NRF24L01_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "utils.h"
@@ -1118,5 +1122,8 @@ void nrf24_config_rx_pipe(NRF24_t *nrf24, NRF24_Address pipe, const uint8_t *add
 void nrf24_config_tx(NRF24_t *nrf24, const uint8_t *addr);
 void nrf24_pulse_ce(NRF24_t *nrf24);
 
-#endif	/* NRF24L01_H */
+#ifdef __cplusplus
+}
+#endif
 
+#endif	/* NRF24L01_H */

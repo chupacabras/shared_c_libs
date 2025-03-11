@@ -22,7 +22,7 @@ static void LCD_send_internal_cmd8_nibble(LCD_Handle *lcd, uint8_t data) {
 	data_arr[0] = up | LCD_I2C_ENABLE;
 	data_arr[1] = up;
 
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 2);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 2);
 }
 
 /**
@@ -40,13 +40,13 @@ static void LCD_send_internal(LCD_Handle *lcd, uint8_t data, bool is_data) {
 	data_arr[2] = lo | (is_data ? LCD_I2C_RS : 0) | lcd->backlight_en | LCD_I2C_ENABLE;
 	data_arr[3] = lo | (is_data ? LCD_I2C_RS : 0) | lcd->backlight_en;
 
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 4);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 4);
 
 //    HAL_Delay(5);
 }
 
 void LCD_init_i2c(LCD_Handle *lcd, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms) {
-	PCF8574_init(&(lcd->pcf8574_obj), addr_pins, write_reg, read_reg);
+	PCF8574_init(&(lcd->pcf8574_handle), addr_pins, write_reg, read_reg);
 	lcd->delay_ms = delay_ms;
 	lcd->backlight_en=LCD_I2C_BACKLIGHT_EN;
 
@@ -81,23 +81,23 @@ LCD_BusyFlagAndAddressCounter LCD_get_busy_flag_and_address_counter(LCD_Handle *
 //	    data_arr[2] = LCD_I2C_RW|(is_data?LCD_I2C_RS:0)|LCD_I2C_BACKLIGHT_EN|LCD_I2C_ENABLE;
 //	    data_arr[3] = LCD_I2C_RW|(is_data?LCD_I2C_RS:0)|LCD_I2C_BACKLIGHT_EN;
 
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 2);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 2);
 
-	lcd->pcf8574_obj.read_reg(lcd, 0, &data_arr[2], 1);
+	lcd->pcf8574_handle.read_reg(lcd, 0, &data_arr[2], 1);
 
 	data_arr[0] = LCD_I2C_RW | lcd->backlight_en;
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 1);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 1);
 
 	// read second nibble
 	data_arr[0] = LCD_I2C_RW | lcd->backlight_en | LCD_I2C_ENABLE;
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 1);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 1);
 
-	lcd->pcf8574_obj.read_reg(lcd, 0, &data_arr[3], 1);
+	lcd->pcf8574_handle.read_reg(lcd, 0, &data_arr[3], 1);
 	data_arr[0] = LCD_I2C_RW | lcd->backlight_en;
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 1);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 1);
 
 	data_arr[0] = lcd->backlight_en;
-	lcd->pcf8574_obj.write_reg(lcd, 0, data_arr, 1);
+	lcd->pcf8574_handle.write_reg(lcd, 0, data_arr, 1);
 	data_arr[0]=(data_arr[2] & 0xf0) | ((data_arr[3] >> 4) & 0x0f);
 
 	return *((LCD_BusyFlagAndAddressCounter*)&data_arr[0]);

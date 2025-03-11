@@ -8,14 +8,18 @@
  * https://github.com/realspinner/SX1278_LoRa
  */
 
+#ifndef SX127X_H
+#define	SX127X_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include "device.h"
 #include "utils.h"
-
-#ifndef SX127X_H
-#define	SX127X_H
 
 // SX1276   137 - 1020 MHz
 // SX1277   137 - 1020 MHz
@@ -665,5 +669,8 @@ CH_16_868 	867 MHz		1% or LBT+AFA	25 mW
 CH_17_868 	868 MHz		1% or LBT+AFA	25 mW
 */
 
-#endif	/* SX127X_H */
+#ifdef __cplusplus
+}
+#endif
 
+#endif	/* SX127X_H */

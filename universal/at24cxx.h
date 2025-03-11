@@ -1,6 +1,10 @@
 #ifndef AT24CXX_H
 #define	AT24CXX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "device.h"
@@ -49,7 +53,7 @@ typedef struct tag_AT24CXX_Handle {
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
@@ -58,11 +62,11 @@ typedef struct tag_AT24CXX_Handle {
  * @param  a1: 			I2C address input value
  * @param  a0: 			I2C address input value
  */
-void AT24C02_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
+void AT24C02_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
@@ -70,45 +74,32 @@ void AT24C02_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_
  * @param  a2: 			I2C address input value
  * @param  a1: 			I2C address input value
  */
-void AT24C04_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1);
+void AT24C04_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
  * @param  delay_ms: 	The function that makes delay in milliseconds. Hardware dependent.
  * @param  a2: 			I2C address input value
  */
-void AT24C08_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2);
+void AT24C08_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
  * @param  delay_ms: 	The function that makes delay in milliseconds. Hardware dependent.
  */
-void AT24C16_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
+void AT24C16_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
- *                    the information for the EEPROM.
- * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
- * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
- * @param  delay_ms: 	The function that makes delay in milliseconds. Hardware dependent.
- * @param  a2: 			I2C address input value
- * @param  a1: 			I2C address input value
- * @param  a0: 			I2C address input value
- */
-void AT24C32_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
-
-/**
- * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
@@ -117,11 +108,11 @@ void AT24C32_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_
  * @param  a1: 			I2C address input value
  * @param  a0: 			I2C address input value
  */
-void AT24C64_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
+void AT24C32_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
@@ -130,11 +121,11 @@ void AT24C64_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_
  * @param  a1: 			I2C address input value
  * @param  a0: 			I2C address input value
  */
-void AT24C512_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
+void AT24C64_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
 
 /**
  * @brief  Initialize EEPROM object/handler.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
  * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
@@ -143,131 +134,148 @@ void AT24C512_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read
  * @param  a1: 			I2C address input value
  * @param  a0: 			I2C address input value
  */
-void AT24C1024_init(AT24CXX_Handle *obj, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
+void AT24C512_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
+
+/**
+ * @brief  Initialize EEPROM object/handler.
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
+ *                    the information for the EEPROM.
+ * @param  write_reg: 	The function that writes data/command to the module. Hardware dependent.
+ * @param  read_reg: 	The function that reads data fromo the module. Hardware dependent.
+ * @param  delay_ms: 	The function that makes delay in milliseconds. Hardware dependent.
+ * @param  a2: 			I2C address input value
+ * @param  a1: 			I2C address input value
+ * @param  a0: 			I2C address input value
+ */
+void AT24C1024_init(AT24CXX_Handle *handle, at24cxx_write_ptr write_reg, device_read_ptr read_reg, device_delay_ms_ptr delay_ms, bool a2, bool a1, bool a0);
 
 /**
  * @brief  Read 2-byte integer from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  obj:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @param  buf: 		Data buffer.
  * @retval value from memory
  */
-uint16_t AT24CXX_read_int(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *buf);
+uint16_t AT24CXX_read_int(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *buf);
 
 /**
  * @brief  Read 4-byte integer from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @param  buf: 		Data buffer.
  * @retval value from memory
  */
-uint32_t AT24CXX_read_long(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *buf);
+uint32_t AT24CXX_read_long(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *buf);
 
 /**
  * @brief  Read float from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @param  buf: 		Data buffer.
  * @retval value from memory
  */
-float AT24CXX_read_float(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *buf);
+float AT24CXX_read_float(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *buf);
 
 /**
  * @brief  Read double from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @param  buf: 		Data buffer.
  * @retval value from memory
  */
-double AT24CXX_read_double(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *buf);
+double AT24CXX_read_double(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *buf);
 
 /**
  * @brief  Write 1 byte to EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Value to store.
  */
-void AT24CXX_write_byte(AT24CXX_Handle *obj, uint16_t m_address, uint8_t data);
+void AT24CXX_write_byte(AT24CXX_Handle *handle, uint16_t m_address, uint8_t data);
 
 /**
  * @brief  Write 2-byte integer to EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Value to store.
  */
-void AT24CXX_write_int(AT24CXX_Handle *obj, uint16_t m_address, uint16_t data);
+void AT24CXX_write_int(AT24CXX_Handle *handle, uint16_t m_address, uint16_t data);
 
 /**
  * @brief  Write 4-byte integer to EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Value to store.
  */
-void AT24CXX_write_long(AT24CXX_Handle *obj, uint16_t m_address, uint32_t data);
+void AT24CXX_write_long(AT24CXX_Handle *handle, uint16_t m_address, uint32_t data);
 
 /**
  * @brief  Write float to EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Value to store.
  */
-void AT24CXX_write_float(AT24CXX_Handle *obj, uint16_t m_address, float data);
+void AT24CXX_write_float(AT24CXX_Handle *handle, uint16_t m_address, float data);
 
 /**
  * @brief  Write double to EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Value to store.
  */
-void AT24CXX_write_double(AT24CXX_Handle *obj, uint16_t m_address, double data);
+void AT24CXX_write_double(AT24CXX_Handle *handle, uint16_t m_address, double data);
 
 /**
  * @brief  Read 1 byte from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @retval value from memory.
  */
-uint8_t AT24CXX_read_byte(AT24CXX_Handle *obj, uint16_t m_address);
+uint8_t AT24CXX_read_byte(AT24CXX_Handle *handle, uint16_t m_address);
 
 /**
  * @brief  Read next 1 byte from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @retval value from memory
  */
-uint8_t AT24CXX_read_next_byte(AT24CXX_Handle *obj);
+uint8_t AT24CXX_read_next_byte(AT24CXX_Handle *handle);
 
 /**
  * @brief  Write data to EEPROM. Writes data by pages.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Target memory address.
  * @param  data: 		Data to store.
  * @param  length: 		Length of data to store.
  */
-void AT24CXX_write_data(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *data, uint16_t length);
+void AT24CXX_write_data(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *data, uint16_t length);
 
 /**
  * @brief  Read data from EEPROM.
- * @param  obj:       Pointer to a AT24CXX_Object structure that contains
+ * @param  handle:       Pointer to a AT24CXX_Handle structure that contains
  *                    the information for the EEPROM.
  * @param  m_address: 	Requested memory address.
  * @param  data: 		Data buffer.
  * @param  length: 		Count of bytes to read.
  * @retval Count of bytes that were actually read
  */
-uint16_t AT24CXX_read_data(AT24CXX_Handle *obj, uint16_t m_address, uint8_t *data, uint16_t length);
+uint16_t AT24CXX_read_data(AT24CXX_Handle *handle, uint16_t m_address, uint8_t *data, uint16_t length);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* AT24C32_64_H */
 

@@ -9,6 +9,10 @@
 #ifndef __RTC_H
 #define __RTC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "utils.h"
 
@@ -69,5 +73,9 @@ void rtc_convert_year(RTC_time *time, uint8_t val);
 
 uint8_t rtc_encode_hours(uint8_t val, RTCHoursFormat hour_format);
 uint8_t rtc_weekday(uint16_t year, uint8_t month, uint8_t day);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

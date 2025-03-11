@@ -8,6 +8,10 @@
 #ifndef __SENSOR_MESSAGE_H
 #define __SENSOR_MESSAGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -38,6 +42,7 @@
 #define MSG_VALUE_BATTERY_LEVEL					25
 #define MSG_VALUE_AC_VOLTAGE_MAINS				30
 #define MSG_VALUE_AC_CURRENT_MAINS				31
+#define MSG_VALUE_AC_REAL_POWER_MAINS			32
 #define MSG_VALUE_BUTTON1_PRESSED				41
 #define MSG_VALUE_BUTTON2_PRESSED				42
 #define MSG_VALUE_BUTTON3_PRESSED				43
@@ -83,6 +88,9 @@
 #define STR_RELAY2					"relay2"
 #define STR_RELAY3					"relay3"
 #define STR_RELAY4					"relay4"
+#define STR_AC_MAINS_V				"ac_voltage"
+#define STR_AC_MAINS_I				"ac_current"
+#define STR_AC_MAINS_P				"ac_real_power"
 
 
 
@@ -102,5 +110,9 @@ void SensorMessage_add_1byte(SensorMessage *handle, uint8_t message_type, uint8_
 void SensorMessage_add_2byte(SensorMessage *handle, uint8_t message_type, uint16_t data);
 void SensorMessage_add_3byte(SensorMessage *handle, uint8_t message_type, uint32_t data);
 void SensorMessage_add_4byte(SensorMessage *handle, uint8_t message_type, uint8_t *data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

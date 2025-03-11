@@ -9,6 +9,10 @@
 #ifndef __DS1302_H
 #define __DS1302_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "rtc.h"
 #include "utils.h"
 #include "stdbool.h"
@@ -73,49 +77,53 @@ typedef struct {
 	device_read_pin_ptr read_io;
 	device_write_pin_ptr set_io_output;
 	device_delay_us_ptr delay_us;
-} DS1302_Object;
+} DS1302_Handle;
 
 
 
-//void DS1302_write_byte(DS1302_Object *obj, uint8_t byte);
-//uint8_t DS1302_read_byte(DS1302_Object *obj);
+//void DS1302_write_byte(DS1302_Handle *handle, uint8_t byte);
+//uint8_t DS1302_read_byte(DS1302_Handle *handle);
 
-//void DS1302_write(DS1302_Object *obj, uint8_t reg, uint8_t data);
-//uint8_t DS1302_read(DS1302_Object *obj, uint8_t reg);
+//void DS1302_write(DS1302_Handle *handle, uint8_t reg, uint8_t data);
+//uint8_t DS1302_read(DS1302_Handle *handle, uint8_t reg);
 
-void DS1302_init(DS1302_Object *obj, device_write_pin_ptr write_ce, device_write_pin_ptr write_clk, device_write_pin_ptr write_io, device_read_pin_ptr read_io, device_delay_us_ptr delay_us, device_write_pin_ptr set_io_output);
+void DS1302_init(DS1302_Handle *handle, device_write_pin_ptr write_ce, device_write_pin_ptr write_clk, device_write_pin_ptr write_io, device_read_pin_ptr read_io, device_delay_us_ptr delay_us, device_write_pin_ptr set_io_output);
 
-void DS1302_write_ram(DS1302_Object *obj, uint8_t offset, uint8_t data);
-void DS1302_write_ram_burst(DS1302_Object *obj, uint8_t *buf, uint8_t len);
-uint8_t DS1302_read_ram(DS1302_Object *obj, uint8_t offset);
-void DS1302_read_ram_burst(DS1302_Object *obj, uint8_t *buf, uint8_t len);
-uint8_t DS1302_read(DS1302_Object *obj, uint8_t reg);
-void DS1302_write(DS1302_Object *obj, uint8_t reg, uint8_t data);
+void DS1302_write_ram(DS1302_Handle *handle, uint8_t offset, uint8_t data);
+void DS1302_write_ram_burst(DS1302_Handle *handle, uint8_t *buf, uint8_t len);
+uint8_t DS1302_read_ram(DS1302_Handle *handle, uint8_t offset);
+void DS1302_read_ram_burst(DS1302_Handle *handle, uint8_t *buf, uint8_t len);
+uint8_t DS1302_read(DS1302_Handle *handle, uint8_t reg);
+void DS1302_write(DS1302_Handle *handle, uint8_t reg, uint8_t data);
 
-//void DS1302_get_seconds(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_minutes(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_hours(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_day_of_week(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_date(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_month(DS1302_Object *obj, RTC_time * time);
-//void DS1302_get_year(DS1302_Object *obj, RTC_time * time);
-void DS1302_read_time(DS1302_Object *obj, RTC_time * time);
-void DS1302_write_time(DS1302_Object *obj, RTC_time * time);
+//void DS1302_get_seconds(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_minutes(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_hours(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_day_of_week(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_date(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_month(DS1302_Handle *handle, RTC_time * time);
+//void DS1302_get_year(DS1302_Handle *handle, RTC_time * time);
+void DS1302_read_time(DS1302_Handle *handle, RTC_time * time);
+void DS1302_write_time(DS1302_Handle *handle, RTC_time * time);
 
-//void DS1302_set_seconds(DS1302_Object *obj, uint8_t val);
-//void DS1302_set_minutes(DS1302_Object *obj, uint8_t val);
-//void DS1302_set_hours(DS1302_Object *obj, uint8_t val, uint8_t hour_format);
-void DS1302_set_day_of_week(DS1302_Object *obj, RTCDay val);
-//void DS1302_set_date(DS1302_Object *obj, uint8_t val);
-//void DS1302_set_month(DS1302_Object *obj, uint8_t val);
-//void DS1302_set_year(DS1302_Object *obj, uint8_t val);
+//void DS1302_set_seconds(DS1302_Handle *handle, uint8_t val);
+//void DS1302_set_minutes(DS1302_Handle *handle, uint8_t val);
+//void DS1302_set_hours(DS1302_Handle *handle, uint8_t val, uint8_t hour_format);
+void DS1302_set_day_of_week(DS1302_Handle *handle, RTCDay val);
+//void DS1302_set_date(DS1302_Handle *handle, uint8_t val);
+//void DS1302_set_month(DS1302_Handle *handle, uint8_t val);
+//void DS1302_set_year(DS1302_Handle *handle, uint8_t val);
 
-bool DS1302_clock_halted(DS1302_Object *obj);
-void DS1302_clock_halt(DS1302_Object *obj);
-void DS1302_clock_start(DS1302_Object *obj);
+bool DS1302_clock_halted(DS1302_Handle *handle);
+void DS1302_clock_halt(DS1302_Handle *handle);
+void DS1302_clock_start(DS1302_Handle *handle);
 
-DS1302_TrickleCharge DS1302_get_trickle_charge(DS1302_Object *obj);
-void DS1302_set_trickle_charge(DS1302_Object *obj, DS1302_TrickleCharge trickle);
-//void DS1302_set_write_protect(DS1302_Object *obj, bool write_protect_on);
+DS1302_TrickleCharge DS1302_get_trickle_charge(DS1302_Handle *handle);
+void DS1302_set_trickle_charge(DS1302_Handle *handle, DS1302_TrickleCharge trickle);
+//void DS1302_set_write_protect(DS1302_Handle *handle, bool write_protect_on);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

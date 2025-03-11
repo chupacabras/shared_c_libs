@@ -9,6 +9,10 @@
 #ifndef INC_BL094X_UTILS_H_
 #define INC_BL094X_UTILS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -22,5 +26,9 @@ void BL094X_convert_signed24_value(uint8_t *data, int32_t *val);
 void BL094X_convert_signed20_value(uint8_t *data, int32_t *val);
 void BL094X_convert_unsigned24_value(uint8_t *data, uint32_t *val);
 void BL094X_convert_unsigned16_value(uint8_t *data, uint16_t *val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_BL094X_UTILS_H_ */

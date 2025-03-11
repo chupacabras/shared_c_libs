@@ -9,6 +9,10 @@
 #ifndef INC_BL0942_H_
 #define INC_BL0942_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -151,6 +155,13 @@ typedef enum {
 	BL0942_FREQ_16CYC=0b11
 } BL0942_FrequencyUpdateCycles;
 
+typedef enum {
+	BL0942_GAIN_1=0b00,
+	BL0942_GAIN_4=0b01,
+	BL0942_GAIN_16=0b10,
+	BL0942_GAIN_24=0b11
+} BL0942_Gain;
+
 void BL0942_init_SPI(BL0942_Handle *handle, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg, bl094x_cs_ptr chip_select);
 void BL0942_init_UART(BL0942_Handle *handle, uint8_t addr1, uint8_t addr2, bl094x_write_ptr write_reg, bl094x_read_ptr read_reg);
 
@@ -192,5 +203,9 @@ uint8_t BL0942_soft_reset(BL0942_Handle *handle);
 
 uint8_t BL0942_disable_write_protection(BL0942_Handle *handle);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_BL0942_H_ */

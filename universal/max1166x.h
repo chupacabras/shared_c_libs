@@ -9,6 +9,10 @@
 #ifndef INC_MAX1166X_H_
 #define INC_MAX1166X_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "device.h"
@@ -43,5 +47,9 @@ void MAX1166X_init(MAX1166X_Handle *handle, MAX1166X_Type type, device_write_pin
 void MAX1166X_read_next_channel(MAX1166X_Handle *handle, uint16_t *val);
 void MAX1166X_power_down(MAX1166X_Handle *handle);
 void MAX1166X_wake_up(MAX1166X_Handle *handle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

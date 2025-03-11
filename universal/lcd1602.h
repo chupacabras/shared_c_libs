@@ -9,6 +9,10 @@
 #ifndef INC_LCD1602_H_
 #define INC_LCD1602_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "pcf8574.h"
@@ -66,7 +70,7 @@
 #define LCD_I2C_BACKLIGHT_EN	0b1000
 
 typedef struct {
-	PCF8574_Handle pcf8574_obj;
+	PCF8574_Handle pcf8574_handle;
 	device_delay_ms_ptr delay_ms;
 	uint8_t backlight_en;
 } LCD_Handle;
@@ -176,5 +180,9 @@ void LCD_custom_character(LCD_Handle *lcd, uint8_t index, uint8_t *data);
 void LCD_backlight(LCD_Handle *lcd, bool enable);
 
 void LCD_display_off(LCD_Handle *lcd, bool off);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_LCD1602_H_ */

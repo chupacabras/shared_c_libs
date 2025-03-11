@@ -9,6 +9,10 @@
 #ifndef INC_CRC16_H_
 #define INC_CRC16_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#include "stdio.h"
 #include "stdbool.h"
 #include "stdint.h"
@@ -17,5 +21,9 @@
 bool check_crc16(uint8_t* input, uint16_t len, uint16_t crc_to_check);
 uint16_t crc16(uint8_t* input, uint16_t len);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_CRC16_H_ */

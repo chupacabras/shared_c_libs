@@ -9,8 +9,14 @@
 #ifndef INC_DEVICE_H_
 #define INC_DEVICE_H_
 
-#include <stdbool.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef __STM8S_H
 #include <stdint.h>
+#include <stdbool.h>
+#endif /* __STM8S_H */
 
 /**
  * @brief  Delay in milliseconds.
@@ -64,5 +70,9 @@ typedef void (*device_write_pin_ptr)(bool);
  * @retval  value of pin
  */
 typedef bool (*device_read_pin_ptr)(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_DEVICE_H_ */

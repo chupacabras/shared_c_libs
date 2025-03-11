@@ -1,6 +1,10 @@
 #ifndef INC_NTC_H
 #define	INC_NTC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // 2322 640-10k, 10 kOhm, B=3977K
@@ -69,5 +73,9 @@
 // output: hundreths od deg C (13000 = 130.00 C)
 int16_t convert_temperature(uint32_t val, const uint16_t *NTC_ARR);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* INC_NTC_H */

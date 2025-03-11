@@ -21,6 +21,10 @@
 #ifndef LIS2DH12_H
 #define	LIS2DH12_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #ifndef float_t
 #define	float_t float
@@ -916,6 +920,10 @@ int8_t lis2dh12_spi_mode_set(device_ctx_t *ctx, lis2dh12_sim_t val);
 int8_t lis2dh12_spi_mode_get(device_ctx_t *ctx, lis2dh12_sim_t *val);
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* LIS2DH12_H */
 

@@ -9,6 +9,10 @@
 #ifndef INC_DEBOUNCER_H_
 #define INC_DEBOUNCER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#include "main.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -57,5 +61,9 @@ void deboucer_process(DebounceButton * btn);
 void deboucer_set_button_mode(DebounceButton * btn, DebouncerButtonMode mode);
 uint16_t deboucer_pull_pressed_count(DebounceButton *btn);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_DEBOUNCER_H_ */

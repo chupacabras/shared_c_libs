@@ -6,9 +6,12 @@
   ******************************************************************************
   */
 
-
 #ifndef __UTILS_H
 #define __UTILS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,5 +34,9 @@ uint8_t num_to_bcd(uint8_t num);
 
 void roundDouble(double d, int32_t* rounded);
 void ceilDouble(double d, int32_t* ceiled);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

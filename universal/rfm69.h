@@ -6,13 +6,17 @@
   ******************************************************************************
   */
 
+#ifndef RFM69_H_
+#define RFM69_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include "device.h"
-
-#ifndef RFM69_H_
-#define RFM69_H_
 
 #define RFM69_XTAL			   32000000
 //#define RFM69_FSTEP			   61.03515625	// = 15625 / 256
@@ -383,5 +387,9 @@ void RFM69_interrupt_handler_io(RFM69_t *module);
 
 void RFM69_loop(RFM69_t *module);
 void RFM69_start_listening(RFM69_t *module);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RFM69_H_ */

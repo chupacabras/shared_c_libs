@@ -9,6 +9,10 @@
 #ifndef INC_PCF8574_H_
 #define INC_PCF8574_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "device.h"
 
@@ -22,9 +26,13 @@ typedef struct {
 	uint8_t addr;
 } PCF8574_Handle;
 
-void PCF8574_init(PCF8574_Handle *obj, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg);
-uint8_t PCF8574_read_port(PCF8574_Handle *obj);
-void PCF8574_write_port(PCF8574_Handle *obj, uint8_t port_data);
+void PCF8574_init(PCF8574_Handle *handle, uint8_t addr_pins, device_write_ptr write_reg, device_read_ptr read_reg);
+uint8_t PCF8574_read_port(PCF8574_Handle *handle);
+void PCF8574_write_port(PCF8574_Handle *handle, uint8_t port_data);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_PCF8574_H_ */

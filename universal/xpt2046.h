@@ -9,6 +9,10 @@
 #ifndef __XPT2046_H
 #define	__XPT2046_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "device.h"
@@ -70,5 +74,9 @@ int16_t xpt2046_pressure(XPT2046_Handle * handle);
 
 // hundreths of deg C (2501 = 25.01C)
 int16_t xpt2046_get_temperature(XPT2046_Handle * handle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* __XPT2046_H */

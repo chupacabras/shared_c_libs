@@ -9,6 +9,10 @@
 #ifndef INC_CS1237_H_
 #define INC_CS1237_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "stdbool.h"
 #include <stdint.h>
 #include "device.h"
@@ -92,14 +96,18 @@ CS1237lib Status Register
 #define SRM_READ_CNF_PENDING   0x01
 
 
-void CS1237_init(CS1237_Handle * obj, cs1237_device_pin set_pin_input, cs1237_device_pin set_pin_output, cs1237_device_pin set_clk_low, cs1237_device_pin set_clk_high, cs1237_device_pin set_dat_low, cs1237_device_pin set_dat_high, cs1237_device_pin_read read_dat, device_delay_us_ptr delay_us);
-void CS1237_power_down(CS1237_Handle * obj);
-void CS1237_wake_up(CS1237_Handle * obj);
-bool CS1237_data_ready(CS1237_Handle * obj);
-bool CS1237_adc_read(CS1237_Handle * obj);
-bool CS1237_poll(CS1237_Handle * obj);
-bool CS1237_read_config(CS1237_Handle * obj);
-bool CS1237_write_config(CS1237_Handle * obj);
+void CS1237_init(CS1237_Handle * handle, cs1237_device_pin set_pin_input, cs1237_device_pin set_pin_output, cs1237_device_pin set_clk_low, cs1237_device_pin set_clk_high, cs1237_device_pin set_dat_low, cs1237_device_pin set_dat_high, cs1237_device_pin_read read_dat, device_delay_us_ptr delay_us);
+void CS1237_power_down(CS1237_Handle * handle);
+void CS1237_wake_up(CS1237_Handle * handle);
+bool CS1237_data_ready(CS1237_Handle * handle);
+bool CS1237_adc_read(CS1237_Handle * handle);
+bool CS1237_poll(CS1237_Handle * handle);
+bool CS1237_read_config(CS1237_Handle * handle);
+bool CS1237_write_config(CS1237_Handle * handle);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_CS1237_H_ */

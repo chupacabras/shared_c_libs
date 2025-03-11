@@ -26,57 +26,49 @@ uint8_t BL094X_calculate_checksum(uint8_t *data1, uint8_t len1, uint8_t *data2, 
 }
 
 void BL094X_convert_signed24_value(uint8_t *data, int32_t *val) {
-	bool neg=false;
-	if (data[0] & 0x80) {
-		neg=true;
-		data[0]&=0x7f;
-		data[0]^=0xff;
-		data[1]^=0xff;
-		data[2]^=0xff;
+	if (data[2] & 0x80) {
+		*val=0xff;
+		*val<<=8;
+	} else {
+		*val=0;
 	}
 
-	*val=data[0];
+	*val|=data[2];
 	*val<<=8;
 	*val|=data[1];
 	*val<<=8;
-	*val|=data[2];
+	*val|=data[0];
 
-	if (neg) {
-		*val=-*val;
-	}
 }
 
 void BL094X_convert_signed20_value(uint8_t *data, int32_t *val) {
-	bool neg=false;
-	if (data[0] & 0x08) {
-		neg=true;
-		data[0]&=0x07;
-		data[0]^=0xff;
-		data[1]^=0xff;
-		data[2]^=0xff;
+	if (data[2] & 0x08) {
+		*val=0xff;
+		*val<<=8;
+		data[2]|=0xf0;
+	} else {
+		data[2]&=0x0f;
+		*val=0;
 	}
 
-	*val=data[0];
+	*val|=data[2];
 	*val<<=8;
 	*val|=data[1];
 	*val<<=8;
-	*val|=data[2];
+	*val|=data[0];
 
-	if (neg) {
-		*val=-*val;
-	}
 }
 
 void BL094X_convert_unsigned24_value(uint8_t *data, uint32_t *val) {
-	*val=data[0];
+	*val=data[2];
 	*val<<=8;
 	*val|=data[1];
 	*val<<=8;
-	*val|=data[2];
+	*val|=data[0];
 }
 
 void BL094X_convert_unsigned16_value(uint8_t *data, uint16_t *val) {
-	*val=data[0];
+	*val=data[1];
 	*val<<=8;
-	*val|=data[1];
+	*val|=data[0];
 }

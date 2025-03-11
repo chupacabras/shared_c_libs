@@ -9,6 +9,10 @@
 #ifndef INC_CBUFFER_H_
 #define INC_CBUFFER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "stddef.h"
 #include "stdint.h"
 #include "stdbool.h"
@@ -45,5 +49,9 @@ int8_t cbuffer_put_object(CircularBuffer *cbuf, uint8_t *data, size_t len);
 
 // return size of object
 size_t cbuffer_get_object(CircularBuffer *cbuf, uint8_t *data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INC_CBUFFER_H_ */
